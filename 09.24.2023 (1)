@@ -40,7 +40,7 @@ gray = "\033[1;30m"
 
 # formatting
 def Title(): # print out game header
-    title = "The 100 RPG Game"
+    title = "The 100 Role Player Game"
     Title = f"{italic}{bold}{green}{title:^80}{end}"
     author = f"{purple}by @RaiBread{end}"
     print(Title)
@@ -59,10 +59,10 @@ def choose_fighter():
     clear()
     print("\nChoose your class:\n")
     draw()
-    print(f"[{bold}{red}Jaka {normal}(Thief){end}\t\t\tGood strength       |  Excellent dexterity  |  Dagger")
-    print(f"[{bold}{yellow}Wanheda {normal}(Commander of Death){end}\tExcellent strength  |  Ok dexterity         |  Rapier")
-    print(f"[{bold}{cyan}Fleimkepa {normal}(Flamekeeper){end}\tGood strength       |  Excellent dexterity  |  Glaive")
-    print(f"[{bold}{purple}Natblida Gona {normal}(Nightblood Warrior){end}\t\tExcellent strength  |  Good dexterity       |  Crossbow")
+    print(f"[{bold}{red}Jaka {normal}(Thief){end}\t\t\t\tGood strength       |  Excellent dexterity  |  Dagger")
+    print(f"[{bold}{yellow}Wanheda {normal}(Commander of Death){end}\t\tExcellent strength  |  Ok dexterity         |  Rapier")
+    print(f"[{bold}{cyan}Fleimkepa {normal}(Flamekeeper){end}\t\tGood strength       |  Excellent dexterity  |  Glaive")
+    print(f"[{bold}{purple}Natblida Gona {normal}(Nightblood Warrior){end}\tExcellent strength  |  Good dexterity       |  Crossbow")
     draw()
 def go_to_Polis():
     clear()
@@ -73,19 +73,29 @@ def go_to_Polis():
         clear()
         print(f"Location: {red}{underline}{bold}Polis{end}\n")
         print("The square is alive with the chatter of Grounders in various outfits,\neach representing their clan. Warriors bearing weapons stride with\nconfidence, while traders and healers offer their wares and services at their\nmarket stalls. Grounder children play among the bustling crowd.\n")
-        print(f"{bold}{gold}Inv {white}| {blue}Stats {white}| {copper}Marketplace{white} | {green}Converse {white}|")
+        print(f"{bold}Exit | {gold}Inv {white}| {red}Save {white}| {blue}Stats {white}| {copper}Marketplace{white} | {green}Converse {white}|{end}")
         action = input("> ").strip().lower()
-        if action[0] == 'i': # inventory
+        if action in ['e', 'x', 'exit']: # exit
+            player.save_game('load.txt') # autosave
+            print("Goodbye!")
+            quit()
+        if action in ['i', 'inv', 'inventory']: # inventory
             player.print_inventory()
-        elif action[0] == 's': # stats
+        elif action == "save":
+            player.save_game('load.txt') # autosave
+            print(f"{green}>>saved<<")
+            t.sleep(0.5)
+        elif action in ['s', 'stats']: # stats
             player.print_stats()
-        elif action[0] == 'm': # marketplace
+        elif action in ['m', 'marketplace', 'market', 'store']: # marketplace
             # print cutscene of entering marketplace
             go_to_Market() ### MAKE STORE FUNCTION SO YOU CAN HAVE OPTION TO BUY THINGS IN OTHER PLACES TOO
-        elif action[0] == 'c': # converse
+        elif action in ['c', 'converse', 'talk']: # converse
             pass ### ADD CONVERSATIONS HERE
-        elif action[0] not in ['i', 's', 'm', 'c']:
-            print("Invalid location, try again.")
+        else:
+            print(f"{red}{bold}Invalid{end} command.")
+            t.sleep(0.5)
+            print(f"\n{bold}{green}Valid{end} commands:\n['e', 'x', 'exit'\n'i', 'inv', 'inventory'\n's', 'stats'\n'm', 'marketplace', 'market', 'store'\n'c', 'converse', 'talk']")
             enter()
 def go_to_Dropship(): ###
     pass
@@ -102,13 +112,13 @@ def go_to_Tondc(): ###
 def go_to_ShallowValley(): ###
     pass
 
-
+# diceroll function (used for attack & damage rolls)
 def diceRoll(numOfSides):
   roll = r.randint(1, numOfSides)
   return roll
 
 class Player:
-    def __init__(self, name, currentHP, maxHP, gp, strength, dex, xp, equipped_weapon, inv=None):
+    def __init__(self, name, currentHP, maxHP, gp, strength, dex, xp, equipped_weapon=None, inv=None):
         self.name = name
         self.currentHP = currentHP
         self.maxHP = maxHP
@@ -165,7 +175,7 @@ class Player:
                 print("Please enter a valid command.")
                 enter()
                 continue
-            if choice[0] == "l": # leave
+            if choice in ['l', 'leave']: # leave
                 break
             elif choice.isdigit():
                 item_index = int(choice) - 1 # converting choice into an index of the inventory
@@ -177,24 +187,24 @@ class Player:
                             while True:
                                 print(f"\n{selected_item.name.title()}\nWhat would you like to do?\n| Sell | Exit | Use | Desc")
                                 option = input("\n> ").strip().lower()
-                                if option[0] == "s": # sell
+                                if option in ['s', 'sell']: # sell
                                     print("SELL ITEMS") ### ADD SELLING CAPABILITY
                                     enter()
                                     break
-                                elif option[0] == "e": # exit
+                                elif option in ['e', 'x', 'exit']: # exit
                                     break
-                                elif option[0] == "u": # use
+                                elif option in ['u', 'use', 'equip']: # use
                                     selected_item = potion
                                     selected_item.drinkPotion(self)
                                     enter()
                                     break
-                                elif option[0] == "d": # description
+                                elif option in ['d', 'desc', 'description']: # description
                                     selected_item = potion
                                     print(selected_item.desc)
                                     enter()
                                     break
                                 else:
-                                    print(f"{red}Invalid{end} Command\n\n{green}Valid{end} Commands:\n['sell', 'exit', 'use', 'drink']\n{bold}or{end} the first letter of each option")
+                                    print(f"{red}Invalid{end} Command\n\n{green}Valid{end} Commands:\n['s', 'sell'\n'e', 'x', 'exit'\n'u', 'use', 'equip'\n'd', 'desc', 'description']")
                                     enter()
 
                     for weapon in weapons_all:
@@ -202,23 +212,23 @@ class Player:
                             while True:
                                 print(f"\n{selected_item.name.title()}\nWhat would you like to do?\n| Sell | Exit | Equip | Desc")
                                 option = input("\n> ").strip().lower()
-                                if option[0] == "s": # sell
+                                if option in ['s', 'sell']: # sell
                                     print("SELL ITEMS") ### ADD SELLING CAPABILITY
                                     enter()
                                     break
-                                elif option == "exit": # exit
+                                elif option in ['x', 'exit']: # exit
                                     break
-                                elif option[0] == "e": # equip
+                                elif option in ['e', 'equip', 'u', 'use']: # equip
                                     selected_item = weapon
                                     self.equip_weapon(selected_item)
                                     break
-                                elif option[0] == "d": # description
+                                elif option in ['d', 'desc', 'description']: # description
                                     selected_item = weapon
                                     print(selected_item.desc)
                                     enter()
                                     break
                                 else:
-                                    print(f"{red}Invalid{end} Command\n\n{green}Valid{end} Commands:\n['sell', 'exit', 'equip', 'drink']")
+                                    print(f"{red}Invalid{end} Command\n\n{green}Valid{end} Commands:\n['s', 'sell'\n'x', 'exit'\n'e', 'equip', 'u', 'use'\n'd', 'desc', 'description']")
                                     enter()
                                     continue
 
@@ -233,6 +243,7 @@ class Player:
         if found_weapon:
             self.equipped_weapon = found_weapon
             print(f"{green}>>{found_weapon.name} equipped<<{end}")
+            t.sleep(0.5)
         else:
             print(f"You don't have {selected_weapon} in your inventory.")
             enter()
@@ -243,10 +254,9 @@ class Player:
         print(f"\n{green}{bold}Health{end} | {self.currentHP}/{self.maxHP} 🩸\n{gold}Gold{end} | {self.gp}\n\n{red}{bold}Strength {end}| {self.strength}\n{purple}{bold}Dexterity{end} | {self.dex}\n{blue}{bold}XP {end}| {player.xp}")
         enter()
 
-    @staticmethod
-    def save_game(player_instance, filename):
+    def save_game(self, filename):
         with open(filename, "wb") as file:
-            pickle.dump(player_instance, file)
+            pickle.dump(self, file)
 
     @staticmethod
     def load_game(filename): ### FIX: There is a problem when loading from a new game, doesn't recognize player
@@ -292,12 +302,12 @@ class Weapons:
     
         Weapons.num_of_weapons += 1
     
-    def attack(self): ### ADD alter code so this is a two-way battle
+    def attack(self, enemy): ### ADD alter code so this is a two-way battle
         if self.finesse == True: # if weapon is finesse, choose between strength and dexterity for your attack
-            strength_or_dex = input(f"Do you want to use your Strength ({player.strength}) or Dexterity ({player.dex}) modifier?\n> ").strip().title()
+            strength_or_dex = input(f"Do you want to use your Strength ({player.strength}) or Dexterity ({player.dex}) modifier?\n> ").strip().lower()
             ### ADD THE ENEMY'S ATTACKS TO THIS ONCE YOU CREATE THE ENEMIES ###
             while enemy.currentHP > 0: 
-                if strength_or_dex[0] == 'S' or strength_or_dex[0] == str(f'{player.strength}'): # if choose strength
+                if strength_or_dex in ['s', 'strength', 'str'] or strength_or_dex[0] == str(f'{player.strength}'): # if choose strength
                     attack_roll = diceRoll(20) + player.strength
                     if attack_roll >= enemy.armor_class: # if attack roll successful, on to do damage
                         damage_roll = diceRoll(self.num_of_sides) + player.strength
@@ -309,7 +319,7 @@ class Weapons:
                         print("You miss them and deal no damage.")
                         enter()
                         clear()
-                elif strength_or_dex[0] == 'D' or strength_or_dex[0] == str(f'{player.dex}'): # if choose dex
+                elif strength_or_dex in ['d', 'dex', 'dexterity'] or strength_or_dex[0] == str(f'{player.dex}'): # if choose dex
                     attack_roll = diceRoll(20) + player.dex
                     if attack_roll >= enemy.armor_class: # if attack roll successful, on to do damage
                         damage_roll = diceRoll(self.num_of_sides) + player.dex
@@ -321,7 +331,9 @@ class Weapons:
                         print("You miss them and deal no damage.")
                         enter()
                         clear()
-                
+                else:
+                    print("{bold}{red}Invalid{end} command.\n\n{bold}{green}Valid{end} commands:\n's', 'strength', 'str'\n'd', 'dex', 'dexterity'")
+
         elif self.melee == True:
             input('Hit any key to attack') ### ADD: give two attack options
             while enemy.currentHP > 0: 
@@ -355,9 +367,10 @@ class Weapons:
                     clear()
             
         if enemy.currentHP <= 0:
-            print(f"You have defeated the {enemy.name}! They dropped a {enemy.dropItem} and {enemy.dropGP} gp")
-            (player.inv).append(enemy.dropItem)
+            print(f"You have defeated the {enemy.name}! They dropped a {bold}{copper}{enemy.dropItem.name}{end} and {gold}{enemy.dropGP} gp{end}")
+            player.add_to_inv(enemy.dropItem, 1)
             player.gp += enemy.dropGP
+            enter()
             return player.inv, player.gp
 
 class Potions:
@@ -370,7 +383,6 @@ class Potions:
 
         Potions.num_of_potions += 1
     
-    ### CHANGE SO DRINKING POTION IS METHOD OF PLAYER CLASS
     def drinkPotion(self, user): # call function when want to drink potion/gain effects from them
         if self.name == 'knowledge potion':
             print(knowledge_potion.effect)
@@ -398,10 +410,10 @@ potions_all = [health_potion, knowledge_potion]
 
 # list of all enemies
 ### THINK ABOUT adding these attributes to Enemy: list of different attack options, 4 options for damage they can do to player (either damage can be randomly chosen or we give them str/dex modifiers for it), death (a string with how each enemy dies)
-reaper = Enemy('reaper', 10, 15, 15, reaper_stick.name, 3)
-azgeda = Enemy('azgeda warrior', 12, 20, 20, butterfly_sword.name, 5)
+reaper = Enemy('reaper', 10, 15, 15, reaper_stick, 3)
+azgeda = Enemy('azgeda warrior', 12, 20, 20, butterfly_sword, 5)
 enemy_list = [reaper, azgeda] # list of enemies
-enemy = r.choice(enemy_list) 
+the_enemy = r.choice(enemy_list) 
 
 ## RUN GAME ##
 player = None
@@ -416,8 +428,8 @@ while run:
         if choice == "1": # new game
             while True:
                 choose_fighter()
-                fighter = input("> ").strip().upper()
-                if fighter[0] == "J":
+                fighter = input("> ").strip().lower()
+                if fighter in ['j', 'jaka']:
                     player = Player('Jaka', 20, 20, 10, 3, 4, 0, None, None) # passing in information about player
                     # starting inventory items
                     player.add_to_inv(dagger, 1) 
@@ -425,7 +437,7 @@ while run:
                     player.add_to_inv(knowledge_potion, 1)
                     enter()
                     break
-                elif fighter[0] == "W":
+                elif fighter in ['w', 'wanheda']:
                     player  = Player('Wanheda', 20, 20, 10, 4, 2, 0, None, None)
                     # starting inventory items
                     player.add_to_inv(rapier, 1) 
@@ -433,7 +445,7 @@ while run:
                     player.add_to_inv(knowledge_potion, 1)
                     enter()
                     break
-                elif fighter[0] == "F":
+                elif fighter in ['f', 'fleimkepa']:
                     player  = Player('Fleimkepa', 20, 20, 10, 3, 5, 0, None, None)
                     # starting inventory items
                     player.add_to_inv(glaive, 1) 
@@ -441,7 +453,7 @@ while run:
                     player.add_to_inv(knowledge_potion, 1)
                     enter()
                     break
-                elif fighter[0] == "N":
+                elif fighter in ['n', 'natblida', 'natblida gona', 'g', 'gona']:
                     player  = Player('Natblida Gona', 20, 20, 10, 5, 3, 0, None, {})
                     # starting inventory items
                     player.add_to_inv(crossbow, 1) 
@@ -449,12 +461,13 @@ while run:
                     player.add_to_inv(knowledge_potion, 1)
                     enter()
                     break
-                elif fighter[0] not in ["J", "W", "F", "N"]:  # if enter wrong thing
+                else:  # if enter wrong thing
                     print(f"{red}Invalid{end} answer\n{bold}Valid Commands{end}: 'jaka', 'wanheda', 'fleimkepa', 'natblida gona'\n\nYou can also just use the {yellow}first letter of the command{end}\nI.e., 'j' for {red}jaka{end}")
                     enter()
                     clear()
+                
             if player is not None:
-                Player.save_game(player, 'load.txt')
+                player.save_game('load.txt')
             mainMenu = False
             play = True
             clear()
@@ -489,9 +502,15 @@ while run:
         #play = True
 
     while play:
-        Player.save_game(player, 'load.txt') # autosave
+        player.save_game('load.txt') # autosave
         go_to_Polis()
 
 
 
 ## TESTING
+# player.equipped_weapon.attack(the_enemy)
+
+## BUGS
+'''
+1.  When you load a saved game, the inventory functionality stops working. 
+    It won't let you select an inventory item. --> Perhaps an issue with how the data is saved/loaded into the game?'''
