@@ -104,7 +104,31 @@ def go_to_MtWeather(): ###
 def go_to_TrikruWoods(): ###
     pass
 def go_to_Market(): ###
-    pass # give options of diff market stalls
+    global in_Marketplace
+    in_Marketplace = True
+    while in_Marketplace:
+        clear()
+        print(f"The market stalls are adorned with colorful fabrics and\ngoods from each clan.\nThey offer you their wares as you pass by each stall.\n\n{bold}What kind of goods are you looking for?\n{end}")
+        print(f"| {bold}{copper}Shuda {white}(Weapons) | {bold}{purple}Potions{white} | {bold}{blue}Tek{white} (Tech) | {bold}{gray}Leave |{end}")
+        shop = input("> ").strip().lower()
+        if shop in ['s', 'shuda', 'w', 'weapons']:
+            clear()
+            print(f'{bold}{copper}Shuda Kofgeda{end}') ### ADD weapons shop
+            enter()
+        elif shop in ['p', 'potions']:
+            clear()
+            print(f'{bold}{purple}Potions Kofgeda{end}') ### ADD potions shop
+            enter()
+        elif shop in ['t', 'tek', 'tech', 'technology']:
+            clear()
+            print(f'{bold}{blue}Tek Kofgeda{end}') ### ADD tech shop
+            enter()
+        elif shop in ['l', 'leave', 'x', 'e', 'exit']:
+            in_Marketplace = False
+        else:
+            print(f"{bold}{red}Invalid{white} command.\n\n{green}Valid{white} commands:\n{end}['s', 'shuda', 'w', 'weapons'\n'p', 'potions'\n't', 'tek', 'tech', 'technology'\n'l', 'leave', 'x', 'e', 'exit'")
+            continue
+
 def go_to_Deadzone(): ###
     pass
 def go_to_Tondc(): ###
@@ -171,11 +195,7 @@ class Player:
             # inventory choices
             print(f"\n[{cyan}{bold}l{end}] to leave")
             choice = input("> ").strip().lower()
-            if choice == "": # check if empty
-                print("Please enter a valid command.")
-                enter()
-                continue
-            if choice in ['l', 'leave']: # leave
+            if choice in ['l', 'leave', 'x', 'exit']: # leave
                 break
             elif choice.isdigit():
                 item_index = int(choice) - 1 # converting choice into an index of the inventory
@@ -188,7 +208,9 @@ class Player:
                                 print(f"\n{selected_item.name.title()}\nWhat would you like to do?\n| Sell | Exit | Use | Desc")
                                 option = input("\n> ").strip().lower()
                                 if option in ['s', 'sell']: # sell
-                                    print("SELL ITEMS") ### ADD SELLING CAPABILITY
+                                    self.remove_from_inv(selected_item, 1)
+                                    print(f"{gold}>> {selected_item.name} sold for {selected_item.price} gp <<{end}")
+                                    self.gp += selected_item.price
                                     enter()
                                     break
                                 elif option in ['e', 'x', 'exit']: # exit
@@ -213,7 +235,11 @@ class Player:
                                 print(f"\n{selected_item.name.title()}\nWhat would you like to do?\n| Sell | Exit | Equip | Desc")
                                 option = input("\n> ").strip().lower()
                                 if option in ['s', 'sell']: # sell
-                                    print("SELL ITEMS") ### ADD SELLING CAPABILITY
+                                    self.remove_from_inv(selected_item, 1)
+                                    print(f">>{selected_item.name} sold for {gold}{selected_item.price} gp{end}<<")
+                                    self.gp += selected_item.price
+                                    if selected_item == self.equipped_weapon:
+                                        self.equipped_weapon = None
                                     enter()
                                     break
                                 elif option in ['x', 'exit']: # exit
@@ -231,6 +257,9 @@ class Player:
                                     print(f"{red}Invalid{end} Command\n\n{green}Valid{end} Commands:\n['s', 'sell'\n'x', 'exit'\n'e', 'equip', 'u', 'use'\n'd', 'desc', 'description']")
                                     enter()
                                     continue
+            else:
+                print(f"{bold}{red}Invalid{white} command.\n{green}Valid{white} commands:{end}\n['l', 'leave', 'x', 'exit'\nor the corresponding number to the inventory item you want to select]")
+                enter()
 
     def equip_weapon(self, selected_weapon):
         found_weapon = None
@@ -392,6 +421,9 @@ class Potions:
             user.currentHP += 5
         user.remove_from_inv(self, 1)
         return user.xp, user.currentHP
+    
+class Tech(Potions): ### ADD TECH
+    pass
 
 # list of all weapons
 glaive = Weapons('glaive', 'This glaive boasts a gleaming obsidian blade with intricate,\nethereal runes etched along its length, set upon a polished, ebony-hued\nshaft adorned with menacing, dragon-shaped pommel.', 20, False, True, False, 10)
@@ -423,13 +455,13 @@ while run:
         draw()
         print("1. New Game\n2. Load Game\n3. Quit game") # menu options
         draw()
-        choice = input("> ").strip() # choice
+        choice = input("> ").strip().lower() # choice
         clear()
-        if choice == "1": # new game
+        if choice in ['1', 'n', 'new', 'new game']: # new game
             while True:
                 choose_fighter()
                 fighter = input("> ").strip().lower()
-                if fighter in ['j', 'jaka']:
+                if fighter in ['j', 'jaka','t', 'thief']:
                     player = Player('Jaka', 20, 20, 10, 3, 4, 0, None, None) # passing in information about player
                     # starting inventory items
                     player.add_to_inv(dagger, 1) 
@@ -437,7 +469,7 @@ while run:
                     player.add_to_inv(knowledge_potion, 1)
                     enter()
                     break
-                elif fighter in ['w', 'wanheda']:
+                elif fighter in ['w', 'wanheda', 'c', 'commander of death']:
                     player  = Player('Wanheda', 20, 20, 10, 4, 2, 0, None, None)
                     # starting inventory items
                     player.add_to_inv(rapier, 1) 
@@ -445,7 +477,7 @@ while run:
                     player.add_to_inv(knowledge_potion, 1)
                     enter()
                     break
-                elif fighter in ['f', 'fleimkepa']:
+                elif fighter in ['f', 'fleimkepa', 'flamekeeper', 'fleim', 'flame']:
                     player  = Player('Fleimkepa', 20, 20, 10, 3, 5, 0, None, None)
                     # starting inventory items
                     player.add_to_inv(glaive, 1) 
@@ -453,7 +485,7 @@ while run:
                     player.add_to_inv(knowledge_potion, 1)
                     enter()
                     break
-                elif fighter in ['n', 'natblida', 'natblida gona', 'g', 'gona']:
+                elif fighter in ['n', 'natblida', 'nightblood', 'natblida gona', 'nightblood warrior', 'g', 'gona', 'w', 'warrior']:
                     player  = Player('Natblida Gona', 20, 20, 10, 5, 3, 0, None, {})
                     # starting inventory items
                     player.add_to_inv(crossbow, 1) 
@@ -462,7 +494,7 @@ while run:
                     enter()
                     break
                 else:  # if enter wrong thing
-                    print(f"{red}Invalid{end} answer\n{bold}Valid Commands{end}: 'jaka', 'wanheda', 'fleimkepa', 'natblida gona'\n\nYou can also just use the {yellow}first letter of the command{end}\nI.e., 'j' for {red}jaka{end}")
+                    print(f"{red}{bold}Invalid{white} command\n{green}Valid {white}commands{end}:\n['j', 'jaka','t', 'thief'\n'w', 'wanheda', 'c', 'commander of death'\n'f', 'fleimkepa', 'flamekeeper', 'fleim', 'flame'\n'n', 'natblida', 'nightblood', 'natblida gona', 'nightblood warrior', 'g', 'gona', 'w', 'warrior']")
                     enter()
                     clear()
                 
@@ -472,7 +504,7 @@ while run:
             play = True
             clear()
         
-        elif choice == "2": # load game
+        elif choice in ['2', 'l', 'load', 'load game']: # load game
             loaded_player = Player.load_game('load.txt') # assign loaded player
             if loaded_player is not None:
                 player = loaded_player
@@ -486,7 +518,7 @@ while run:
                 mainMenu = True
                 play = False
 
-        elif choice == "3": # quit game
+        elif choice in ['3', 'q', 'quit', 'quit game', 'x']: # quit game
             quit = input("\nAre you sure you want to quit the game (y/n)?\n> ").strip().lower()
             if quit == "y":
                 clear()
@@ -494,8 +526,8 @@ while run:
                 print("Goodbye!")
                 exit()
 
-        while choice not in ['1', '2', '3']: # if enter wrong thing
-            print("Please enter a valid command.")
+        else: # if enter wrong thing
+            print(f"{bold}{red}Invalid{white} command.\n{green}Valid{white} commands:{end}\n['1', 'n', 'new', 'new game'\n'2', 'l', 'load', 'load game'\n'3', 'q', 'quit', 'quit game', 'x']")
             enter()
             break
         #mainMenu = False # not sure if need these here
