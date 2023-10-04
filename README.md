@@ -14,7 +14,7 @@
 
 ## Development Status
 
-As of 9/24/2023, the game is in the early stages of development. Key functionalities, such as inventory, locations, battles, NPCs, and more, are being implemented. Sections marked with "###" indicate areas that are still under construction.
+As of 10/03/2023, the game is in the early stages of development. Key functionalities such as NPCs and the effects of Tek are being implemented. In-game items and storyline flowchart are also in early stages of development. Sections marked with "###" indicate areas that are still under construction.
 
 ## Installation
 
