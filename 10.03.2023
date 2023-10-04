@@ -120,8 +120,119 @@ class Player:
             print(f"You don't have {selected_tek} in your inventory.")
             enter()
 
-    def attack(self, target): ### move attack method to player class instead of weapon class
-        pass
+    def battle(self, target): ### add option to go to inventory in each round of battle, add round numbers and actually design the battle UI
+        round = 1
+        while target.currentHP > 0: # battle loop
+            global print_battle_title
+            bt = f"{bold}{red}xX  Time to Battle  Xx{end}" # title
+            print("\nAttack | Use Item")
+            attack_or_inv = input("> ").strip().lower()
+
+            if attack_or_inv is not None:
+                if attack_or_inv in ['a', 'attack']: # if choose attack
+                    if self.equipped_weapon is not None:
+                        if self.equipped_weapon.finesse == True: # if finesse weapon, choice of str or dex
+                                strength_or_dex = input(f"Do you want to use your Strength ({self.strength}) or Dexterity ({self.dex}) modifier?\n> ").strip().lower()
+                    else: 
+                        print('You need to equip a weapon before you battle')
+                        break
+                    
+                    # print battle screen and round number
+                    def print_battle_title():
+                        clear()
+                        pr = f"{bold}Round {round}{end}"
+                        print(f"{bt:^90}") # print battle screen
+                        print(f"{pr:^90}") # round number
+                        print(f"\n{bold}{purple}{player.name.title()}{end}: {player.currentHP}/{player.maxHP} HP 🩸\n{bold}{yellow}{target.name.title()}{end}: {target.currentHP} /{target.HP} HP 🩸")
+
+                    # your move
+                    print()
+                    draw()
+                    t.sleep(1)
+                    if self.equipped_weapon.melee == True or (self.equipped_weapon.finesse == True and strength_or_dex in ['s', 'strength', 'str']): # if choose strength or have to use strength bc melee weapon
+                        attack_roll = diceRoll(20) + self.strength
+                        if attack_roll >= target.armor_class: # if attack roll successful, on to do damage
+                            damage_roll = diceRoll(self.equipped_weapon.num_of_sides) + self.strength
+                            target.currentHP -= damage_roll
+                            print(f'{bold}You were adept with your {self.equipped_weapon.name} and dealt the {target.name} {damage_roll} damage!{end}')
+                        else: 
+                            print(f"{bold}You miss them and deal no damage.{end}")
+                    
+                    elif self.equipped_weapon.range == True or (self.equipped_weapon.finesse == True and strength_or_dex in ['d', 'dex', 'dexterity']): # if choose dex or need to use dex because range weapon
+                        attack_roll = diceRoll(20) + self.dex
+                        if attack_roll >= target.armor_class: # if attack roll successful, on to do damage
+                            damage_roll = diceRoll(self.equipped_weapon.num_of_sides) + self.dex
+                            target.currentHP -= damage_roll
+                            print(f'{bold}You were adept with your {self.equipped_weapon.name} and dealt the {target.name} {damage_roll} damage!{end}')
+                        else: 
+                            print(f"{bold}You miss them and deal no damage.{end}")
+                
+                    else:
+                        print(f"{bold}{red}Invalid{end} command.\n\n{bold}{green}Valid{end} commands:\n's', 'strength', 'str'\n'd', 'dex', 'dexterity'")
+                        continue
+                elif attack_or_inv in ['use item', 'item', 'inv', 'i', 'u']: # if want to use an item
+                    print_inventory()
+                    print_battle_title()
+                    draw()
+                    print(f"{bold}You used an inventory item as your turn.{end}")
+                else:
+                    print(f"{red}{bold}Invalid command.\n{green}Valid commands:{end}\n['a', 'attack'\n'use item', 'item', 'inv', 'i', 'u']")
+                    t.sleep(1)
+                    print_battle_title()
+                    continue
+            else:
+                    print(f"{red}{bold}Invalid command.\n{green}Valid commands:{end}\n['a', 'attack'\n'use item', 'item', 'inv', 'i', 'u']")
+                    t.sleep(1)
+                    print_battle_title()
+                    continue
+            
+            # if kill enemy
+            if target.currentHP <= 0: # if enemy dies
+                draw()
+                t.sleep(1)
+                print(f"\nYou have defeated the {target.name}!\n\nThey dropped a {bold}{copper}{target.dropItem.name}{end} and {gold}{target.dropGP} gp{end}")
+                self.add_to_inv(target.dropItem, 1)
+                self.gp += target.dropGP
+                self.xp += 30
+                return self.inv, self.gp, self.xp
+
+            # enemy's move
+            t.sleep(1)
+            if target.equipped_weapon.melee == True or target.equipped_weapon.finesse == True:
+                tattack_roll = diceRoll(20) + target.strength
+                if tattack_roll >= self.AC: # if attack roll successful, on to do damage
+                    tdamage_roll = diceRoll(target.equipped_weapon.num_of_sides) + target.strength
+                    self.currentHP -= tdamage_roll
+                    print(f'\n{bold}The {target.name} dealt you {tdamage_roll} damage{end}')
+                else: 
+                    print(f'\n{bold}The {target.name} missed you and dealt no damage!{end}')
+            
+            elif target.equipped_weapon.range == True:
+                tattack_roll = diceRoll(20) + target.dex
+                if tattack_roll >= self.AC: # if attack roll successful, on to do damage
+                    tdamage_roll = diceRoll(target.equipped_weapon.num_of_sides) + target.dex
+                    self.currentHP -= tdamage_roll
+                    print(f'\n{bold}The {target.name} dealt you {tdamage_roll} damage{end}')
+                else: 
+                    print(f'{bold}The {target.name} missed you and dealt no damage!{end}')
+            draw()
+
+            # if enemy kills player
+            if self.currentHP <= 0:
+                t.sleep(1)
+                print('\nYu gonplei ste odon.\nMay we meet again.')
+                quit()
+            
+            # if nobody dies
+            if self.currentHP > 0 and target.currentHP > 0:
+                
+                t.sleep(1)
+                print(f"\nYou have both survived round {round}! 🎉")
+                round += 1
+                t.sleep(1)
+                enter()
+                print_battle_title()
+                
 
     def print_stats(self):
         clear()
@@ -236,11 +347,11 @@ def print_inventory(): ### ADD: have it also print the quantity of each item in 
                 for tek in tek_all: # if tek
                     if selected_item == tek:
                         while True:
-                            print(f"\n{selected_item.name.title()}\nWhat would you like to do?\n| Sell | Exit | Equip | Desc")
+                            print(f"\n{selected_item.name.title()}\nWhat would you like to do?\n| Sell | Exit | Equip | Use | Desc")
                             option = input("\n> ").strip().lower()
                             if option in ['s', 'sell']: # sell
                                 player.remove_from_inv(selected_item, 1)
-                                print(f">>{gold}>> {selected_item.name} sold for {selected_item.price} gp <<{end}")
+                                print(f"{gold}>> {selected_item.name} sold for {selected_item.price} gp <<{end}")
                                 player.gp += selected_item.price
                                 if selected_item == player.equipped_weapon:
                                     player.equipped_weapon = None
@@ -248,9 +359,13 @@ def print_inventory(): ### ADD: have it also print the quantity of each item in 
                                 break
                             elif option in ['x', 'exit']: # exit
                                 break
-                            elif option in ['e', 'equip', 'u', 'use']: # equip
+                            elif option in ['e', 'equip']: # equip
                                 selected_item = tek
                                 player.equip_tek(selected_item)
+                                break
+                            elif option in ['u', 'use']: # use item against another
+                                selected_item.useTek(player) ### CODE the useTek function
+                                enter()
                                 break
                             elif option in ['d', 'desc', 'description']: # description
                                 selected_item = tek
@@ -286,7 +401,7 @@ def go_to_Polis():
         print("The square is alive with the chatter of Grounders in various outfits,\neach representing their clan. Warriors bearing weapons stride with\nconfidence, while traders and healers offer their wares and services at their\nmarket stalls. Grounder children play among the bustling crowd.\n")
         print(f"{bold}Exit | {gold}Inv {white}| {red}Save {white}| {blue}Stats {white}| {copper}Marketplace{white} | {green}Converse {white}|{end}")
         action = input("> ").strip().lower()
-        if action in ['e', 'x', 'exit']: # exit
+        if action in ['x', 'exit']: # exit
             player.save_game('load.json') # autosave
             print(f"{green}>>saved<<{end}")
             print("Goodbye!")
@@ -306,11 +421,12 @@ def go_to_Polis():
         elif action in ['c', 'converse', 'talk']: # converse
             while True:
                 clear()
-                print(f'You walk towards the center of the square and see\na group of {bold}{green}Trikru Gonas{end} whispering amongst themselves,\nand {bold}{purple}an elderly woman{end} adorned in Fleimkepa robes who\nis sharing wisdom with avid listeners who hang on to her every word.\n\nWho would you like to speak with?\n\n[{bold}{cyan}l{end}] to leave') ### ADD CONVERSATIONS HERE
+                print(f'You walk towards the center of the square and see\na group of {bold}{yellow}Azgeda Gonas{end} whispering amongst themselves,\nand {bold}{purple}an elderly woman{end} adorned in Fleimkepa robes who\nis sharing wisdom with avid listeners who hang on to her every word.\n\nWho would you like to speak with?\n\n[{bold}{cyan}l{end}] to leave') ### ADD CONVERSATIONS HERE
                 response = input('\n> ').strip().lower()
                 if response is not None:
-                    if response in ['trikru gonas', 'trikru', 't', 'gonas', 'gona', 'g']:
-                        print('CONVO WITH TRIKRU/BATTLE') ### write interaction. perhaps fights are randomly triggered?
+                    if response in ['azgeda gonas', 'azgeda', 'a', 'gonas', 'gona', 'g']:
+                        if azgeda.currentHP <= 0: azgeda.currentHP = 20
+                        player.battle(azgeda)### testing
                         enter()
                     elif response in ['woman', 'w', 'elderly woman', 'elder', 'fleimkepa', 'f', 'flamekeeper']:
                         if player.name.lower() == 'fleimkepa':
@@ -340,7 +456,7 @@ def go_to_Polis():
                         enter()
                     elif response in ['x', 'exit', 'e', 'leave', 'l']: break
                     else: 
-                        print(f"{red}Invalid command.{end}\n{green}Valid commands:{end}\n['trikru gonas', 'trikru', 't', 'gonas', 'gona', 'g',\n'woman', 'w', 'elderly woman', 'elder', 'fleimkepa', 'f', 'flamekeeper',\n'x', 'exit', 'e', 'leave', 'l']")
+                        print(f"{red}Invalid command.{end}\n{green}Valid commands:{end}\n['azgeda gonas', 'azgeda', 'a', 'gonas', 'gona', 'g',\n'woman', 'w', 'elderly woman', 'elder', 'fleimkepa', 'f', 'flamekeeper',\n'x', 'exit', 'e', 'leave', 'l']")
                         enter()
                 else: 
                     print(f"{red}Invalid command.{end}\n{green}Valid commands:{end}\n['trikru gonas', 'trikru', 't', 'gonas', 'gona', 'g',\n'woman', 'w', 'elderly woman', 'elder', 'fleimkepa', 'f', 'flamekeeper',\n'x', 'exit', 'e', 'leave', 'l']")
@@ -349,7 +465,7 @@ def go_to_Polis():
         else: # invalid input
             print(f"{red}{bold}Invalid{end} command.")
             t.sleep(0.5)
-            print(f"\n{bold}{green}Valid{end} commands:\n['e', 'x', 'exit'\n'i', 'inv', 'inventory'\n's', 'stats'\n'm', 'marketplace', 'market', 'store'\n'c', 'converse', 'talk']")
+            print(f"\n{bold}{green}Valid{end} commands:\n['x', 'exit'\n'i', 'inv', 'inventory'\n's', 'stats'\n'm', 'marketplace', 'market', 'store'\n'c', 'converse', 'talk']")
             enter()
 def go_to_Dropship(): ###
     pass
@@ -548,9 +664,11 @@ class NPC:
 
 class Enemy(): ### ADD CODE: any other attributes that become necessary (strength and dex)
     num_of_enemies = 0
-    def __init__ (self, name, armor_class, currentHP, HP, dropItem, dropGP, equipped_weapon=None):
+    def __init__ (self, name, armor_class, strength, dex, currentHP, HP, dropItem, dropGP, equipped_weapon=None):
         self.name = name
         self.armor_class = armor_class
+        self.strength = strength
+        self.dex = dex
         self.currentHP = currentHP
         self.HP = HP
         self.dropItem = dropItem
@@ -560,9 +678,6 @@ class Enemy(): ### ADD CODE: any other attributes that become necessary (strengt
         #self.dex = dex
 
         Enemy.num_of_enemies +=1 # keep a count of how many enemies exist
-
-    def enemyAttack(self):
-        pass ### FUNCTION FOR ENEMY'S TURN IN BATTLE
 
 class Weapons: 
     num_of_weapons = 0
@@ -576,79 +691,6 @@ class Weapons:
         self.num_of_sides = num_of_sides # which die needs to be rolled for that weapon
     
         Weapons.num_of_weapons += 1
-    
-    def attack(self, enemy): ### ADD alter code so this is a two-way battle
-        if self.finesse == True: # if weapon is finesse, choose between strength and dexterity for your attack
-            strength_or_dex = input(f"Do you want to use your Strength ({player.strength}) or Dexterity ({player.dex}) modifier?\n> ").strip().lower()
-            ### ADD THE ENEMY'S ATTACKS TO THIS ONCE YOU CREATE THE ENEMIES ###
-            while enemy.currentHP > 0: 
-                if strength_or_dex in ['s', 'strength', 'str'] or strength_or_dex[0] == str(f'{player.strength}'): # if choose strength
-                    attack_roll = diceRoll(20) + player.strength
-                    if attack_roll >= enemy.armor_class: # if attack roll successful, on to do damage
-                        damage_roll = diceRoll(self.num_of_sides) + player.strength
-                        enemy.currentHP -= damage_roll
-                        print(f'\nYou were adept with your {self.name} and dealt the {enemy.name} {damage_roll} damage!\nThe {enemy.name} has {enemy.currentHP}/{enemy.HP} HP')
-                        enter()
-                        clear()
-                    else: 
-                        print("You miss them and deal no damage.")
-                        enter()
-                        clear()
-                elif strength_or_dex in ['d', 'dex', 'dexterity'] or strength_or_dex[0] == str(f'{player.dex}'): # if choose dex
-                    attack_roll = diceRoll(20) + player.dex
-                    if attack_roll >= enemy.armor_class: # if attack roll successful, on to do damage
-                        damage_roll = diceRoll(self.num_of_sides) + player.dex
-                        enemy.currentHP -= damage_roll
-                        print(f'\nYou were adept with your {self.name} and dealt the {enemy.name} {damage_roll} damage!\nThe {enemy.name} has {enemy.currentHP}/{enemy.HP} HP')
-                        enter()
-                        clear()
-                    else: 
-                        print("You miss them and deal no damage.")
-                        enter()
-                        clear()
-                else:
-                    print("{bold}{red}Invalid{end} command.\n\n{bold}{green}Valid{end} commands:\n's', 'strength', 'str'\n'd', 'dex', 'dexterity'")
-                    enter()
-                    continue
-
-        elif self.melee == True:
-            input('Hit any key to attack') ### ADD: give two attack options
-            while enemy.currentHP > 0: 
-                clear()
-                attack_roll = diceRoll(20) + player.strength
-                if attack_roll >= enemy.armor_class:
-                    damage_roll = diceRoll(self.num_of_sides) + player.strength
-                    enemy.currentHP -= damage_roll
-                    print(f'\nYou were adept with your {self.name} and dealt the {enemy.name} {damage_roll} damage!\nThe {enemy.name} has {enemy.currentHP}/{enemy.HP} HP')
-                    enter()
-                    clear()
-                else: 
-                    print("You miss them and deal no damage.")
-                    enter()
-                    clear()
-
-        elif self.range == True: # if range weapon, use dexterity modifier
-            input('Hit any key to attack') ### ADD: give two attack options
-            while enemy.currentHP > 0: 
-                clear()
-                attack_roll = diceRoll(20) + player.dex
-                if attack_roll >= enemy.armor_class:
-                    damage_roll = diceRoll(self.num_of_sides) + player.dex
-                    enemy.currentHP -= damage_roll
-                    print(f'\nYou were adept with your {self.name} and dealt the {enemy.name} {damage_roll} damage!\nThe {enemy.name} has {enemy.currentHP}/{enemy.HP} HP')
-                    enter()
-                    clear()
-                else: 
-                    print("You miss them and deal no damage.")
-                    enter()
-                    clear()
-            
-        if enemy.currentHP <= 0:
-            print(f"You have defeated the {enemy.name}! They dropped a {bold}{copper}{enemy.dropItem.name}{end} and {gold}{enemy.dropGP} gp{end}")
-            player.add_to_inv(enemy.dropItem, 1)
-            player.gp += enemy.dropGP
-            enter()
-            return player.inv, player.gp
 
 class Potions:
     num_of_potions = 0
@@ -670,17 +712,19 @@ class Potions:
         user.remove_from_inv(self, 1)
         return user.xp, user.currentHP
     
-class Tek(Potions): ### ADD Tek
+class Tek(Potions): 
     def __init__(self, name, desc, price, effects):
         super().__init__(name, desc, price, effects)
 
     def useTek(self, user): ###CODE THIS SO YOU CAN ACTUALLY USE IT IN A SCENARIO AND IT WILL INTERACT WITH RADIATION, ETC.
         if self.name == 'wristband':
-            print(wristband.effects) ### actually implement something you can do with it
+            print(f"\nCHANGE THIS TO ACTUALLY AFFECT THINGS:\n{wristband.effects}") ### actually implement something you can do with it
         elif self.name == 'gas mask':
-            print(gas_mask.effects)
+            print(f"\nCHANGE THIS TO ACTUALLY AFFECT THINGS:\n{gas_mask.effects}") ###
         elif self.name == 'the fleim':
-            print(the_fleim.effects)
+            print(f"\nCHANGE THIS TO ACTUALLY AFFECT THINGS:\n{the_fleim.effects}") ###
+        elif self.name == 'knockout gas':
+            print(f"\nCHANGE THIS TO ACTUALLY AFFECT THINGS:\n{knockout_gas.effects}") ###
 
     def use_wristband(self):
         pass ### create functionality for radiation alert & turning on night vision, plus any other effectss you may add to it
@@ -693,29 +737,31 @@ crossbow = Weapons('crossbow', 'This crossbow features a sleek, polished mahogan
 butterfly_sword = Weapons('butterfly sword', 'The butterfly sword boasts a pair of elegantly slender blades\nwith intricately carved jade hilts, their unique S-shaped guards\ndesigned for fluid, acrobatic combat Tekniques.', 10, True, False, False, 6)
 reaper_stick = Weapons('reaper stick', 'WRITE DESCRIPTION', 10, False, True, False, 8)
 reaper_cleaver = Weapons('reaper cleaver', 'The Reaper Cleaver is a massive, double-edged greataxe\nwith a rusted and jagged blade, imbued with a menacing aura,\nsuggesting the cruelty of its wielder.', 30, False, True, False, 12)
-knockout_gas = Weapons('vial of knockout gas', 'Knockout gas is used by the mountain men.\nIt is a potent chemical agent which, like\nthe name says, knocks out whoever inhales it.', 50, False, False, True, 6)
-weapons_all = [glaive, rapier, dagger, crossbow, butterfly_sword, reaper_stick, reaper_cleaver, knockout_gas]
+weapons_all = [glaive, rapier, dagger, crossbow, butterfly_sword, reaper_stick, reaper_cleaver]
 
 # list of all potions
 health_potion = Potions('health potion', 'A glimmering green liquid', 3, "You ingest the green potion and gain 5 health")
 knowledge_potion = Potions('knowledge potion', 'A swirling pearl potion which helps you gain knowledge', 5, "You drink the potion and gain 15 XP")
 potions_all = [health_potion, knowledge_potion]
 
-# list of all enemies
-### THINK ABOUT adding these attributes to Enemy: list of different attack options, 4 options for damage they can do to player (either damage can be randomly chosen or we give them str/dex modifiers for it), death (a string with how each enemy dies)
-reaper = Enemy('reaper', 10, 15, 15, reaper_stick, 3)
-azgeda = Enemy('azgeda warrior', 12, 20, 20, butterfly_sword, 5)
-mountain_man = Enemy('mountain man', 18, 15, 18, knockout_gas, 10)
-enemy_list = [reaper, azgeda] # list of enemies that randomly spawn
-enemies_all = [reaper, azgeda, mountain_man]
-the_enemy = r.choice(enemy_list) 
-
 # list of all tek
 wristband = Tek('wristband', 'These wristbands came with the original 102 to the ground.\nThey were used to measure their vital signs and to\ncommunicate with those still on the Ark.', 50, 'This helpful wristband will give you radiation alerts and night-vision.')
 gas_mask = Tek('gas mask', 'A gas mask is crucial in a radiation-struck world.\nIt filters out knockout gas and other toxic pollutants.', 35, 'Renders the wearer immune to knockout gas\nand less susceptible to radiation and Earth\'s toxic air')
+knockout_gas = Tek('vial of knockout gas','Knockout gas is used by the mountain men.\nIt is a potent chemical agent which, like\nthe name says, knocks out whoever inhales it.', 50, 'Everyone within a 10mi radius') ### change radius it affects?
 the_fleim = Tek('the fleim', 'The Fleim, a sacred artifact, embodies the collective wisdom and\nspirits of past Commanders, guiding us with their knowledge and insight.', 3000, 'A natblida who wins the conclave must take the Fleim and\nrecite the lineage in order to ascend as Commander.\nThe Fleimkepa acts as protecter of the Fleim and of the Commander.')
-tek_for_sale = [wristband, gas_mask]
-tek_all = [wristband, gas_mask, the_fleim]
+tek_for_sale = [wristband, gas_mask, knockout_gas]
+tek_all = [wristband, gas_mask, the_fleim, knockout_gas]
+
+# list of enemies
+### THINK ABOUT adding these attributes to Enemy: list of different attack options, 4 options for damage they can do to player (either damage can be randomly chosen or we give them str/dex modifiers for it), death (a string with how each enemy dies)
+reaper = Enemy('reaper', 12, 4, 3, 15, 15, reaper_stick, 3, dagger)
+azgeda = Enemy('azgeda warrior', 15, 3, 4, 20, 20, butterfly_sword, 5, rapier)
+mountain_man = Enemy('mountain man', 18, 3, 4, 15, 18, knockout_gas, 10, crossbow)
+
+random_enemy_list = [reaper, azgeda] # list of enemies that randomly spawn
+random_enemy = r.choice(random_enemy_list) 
+enemies_all = [reaper, azgeda, mountain_man]
+
 
 ## RUN GAME ##
 player = None
@@ -800,17 +846,11 @@ while run:
             print(f"{bold}{red}Invalid{white} command.\n{green}Valid{white} commands:{end}\n['1', 'n', 'new', 'new game'\n'2', 'l', 'load', 'load game'\n'3', 'q', 'quit', 'quit game', 'x']")
             enter()
             break
-        #mainMenu = False # not sure if need these here
-        #play = True
 
     while play:
         player.save_game('load.json') # autosave
         go_to_Polis()
 
-
-
-## TESTING
-# player.equipped_weapon.attack(the_enemy)
 
 ## BUGS
 '''
@@ -821,12 +861,25 @@ while run:
     It is seeing these as strinsg and not objects perhaps?
     --> Perhaps an issue with how the data is saved/loaded into the game?'''
 
-## Notes as of 10/02/2023
+## Notes as of 10/03/2023
 '''
 Ideas to build on:
 1. Considering making this a 2d game instead of text based as an opportunity to expand my skillset further.
-   Going to learn pygame and then decide if it is the right move for this game. --> so far, i don't think it is unless i want to make all original artwork
+   Going to learn pygame and then decide if it is the right move for this game. --> so far, i don't think it 
+   is unless i want to make all original artwork
 2. Will likely add radiation levels to the game so there may be waves of radiation which could affect order of events. 
-   I.e., there is a wave of radiation and you need to use some resources to survive that. (could also have mountain men ambush with acid fog/knock-out gas)
-3. I may change the setting from Earth to Sanctum. It will introduce other environmental elements such as the red sun eclipse & the anomaly
+   I.e., there is a wave of radiation and you need to use some resources to survive that. (could also have mountain men 
+   ambush with acid fog/knock-out gas)
+3. I may change the setting from Earth to Sanctum. It will introduce other environmental elements such as the red sun 
+   eclipse & the anomaly
+
+NEXT STEPS:
+1. Need to add ability to actually use tek in a scenario where it can help
+2. Change setting from Earth to Sanctum, start diving more into the actual storyline/game rather than setting up mechanics
+    --> decide if the game will be linear, include quests, etc.
+3. Break game up into multiple documents so the code isn't so long?
+
+Changes made since last github update:
+1. Moved the attack method to the player class instead of the weapons class, as it made more sense that way.
+2. Added enemy attacks as well as made the battle UI more physically appealing and gave player option to use an inventory item as their turn
 '''
