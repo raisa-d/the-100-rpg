@@ -241,17 +241,26 @@ class Player:
         enter()
 
     def save_game(self, filename):
-        with open(filename, "wb") as file:
-            pickle.dump(self, file)
+        try:
+            with open(filename, "wb") as file:
+                pickle.dump(self, file)
+            print(f'{green}>>game saved<<{end}')
+            t.sleep(0.5)
+        except Exception as e:
+            print(f"{red}Error saving game: {str(e)}{end}")
 
     @staticmethod
     def load_game(filename): ### FIX: There is a problem when loading from a new game, doesn't recognize player
         try:
             with open(filename, "rb") as file:
-                loaded_player = pickle.load(file)
-                return loaded_player
+                player = pickle.load(file)
+            print(f'{green}>>loaded successfully<<{end}')
+            return player
         except FileNotFoundError:
+            print(">>no saved game found<<")
             return None
+        except Exception as e:
+            print(f"{red}Error loading game: {str(e)}")
 
 def print_inventory(): ### ADD: have it also print the quantity of each item in inventory
     while True:
@@ -274,7 +283,10 @@ def print_inventory(): ### ADD: have it also print the quantity of each item in 
         draw()
         counter = 1
         for item, quantity in player.inv.items(): # print inventory
-            print(f"{purple}{counter}.{white} ", *item.name.title(), f" x {quantity}", sep = "", end = "\n")
+            if isinstance(item, Potions) or isinstance(item, Weapons) or isinstance(item, Tek):
+                print(f"{purple}{counter}.{white} ", *item.name.title(), f" x {quantity}", sep = "", end = "\n")
+            if isinstance(item, str):
+                print(f"{purple}{counter}.{white} ", *item.title(), f" x {quantity}", sep = "", end = "\n")
             counter += 1
         draw()
 
@@ -376,20 +388,208 @@ def print_inventory(): ### ADD: have it also print the quantity of each item in 
                                 print(f"{red}Invalid{end} Command\n\n{green}Valid{end} Commands:\n['s', 'sell',\n'x', 'exit',\n'e', 'equip', 'u', 'use',\n'd', 'desc', 'description']")
                                 enter()
                                 continue
+        
+                for i in player.inv:
+                    if isinstance(selected_item, str):
+                        if selected_item == "1 days rations":
+                            print(f"\n{selected_item.title()}\nWhat would you like to do?\n| Exit | Eat |")
+                            option = input('\n> ').strip().lower()
+                            if option in ['exit', 'x', 'l', 'leave']:
+                                break
+                            elif option in ['eat', 'e']:
+                                print(f'{orange}You eat your rations and relish in the feeling of a full belly.{end}') ### Implement actualy eating functionality
+                                player.remove_from_inv("1 days rations", 1)
+                                enter()
+                                break
+                            else:
+                                print(f"{bold}{red}Invalid command.\n{green}Valid commands:{end}\n['exit', 'x', 'l', 'leave'\n'eat', 'e'")
+                                enter()
+                        
+                        elif selected_item == "small waterskin":
+                            option = input(f"\n{selected_item.title()}\nWhat would you like to do?\n| Exit | Drink |\n\n> ")
+                            if option in ['drink', 'd']:
+                                print(f"{cyan}You drink the crisp water{end}")
+                                player.remove_from_inv("small waterskin", 1) 
+                                enter()
+                                break
+                            elif option in ['x', 'exit', 'l', 'leave']:
+                                break
+                            else:
+                                print(f"{bold}{red}Invalid command.\n{green}Valid commands:{end}\n['x', 'exit', 'l', 'leave'\n'drink', 'd'")
+                                enter()
+                                continue
+
+                        elif selected_item == "lockpick":
+                            option = input(f"\n{selected_item.title()}\nWhat would you like to do?\n| Exit | Desc \n\n> ") ### add ability to use it in certain situations?
+                            if option in ['x', 'exit', 'l', 'leave']:
+                                break
+                            elif option in ['desc', 'd', 'description']:
+                                print('A slender, specialized tool crafted for manipulating the\n internal components of locks, enabling skilled individuals\nto covertly and skillfully open secured doors or containers.')
+                                enter()
+                                break
+                            else:
+                                print(f"{bold}{red}Invalid command.\n{green}Valid commands:{end}\n['x', 'exit', 'l', 'leave'\n'desc', 'd', 'description'")
+                                enter()
+                                continue
         else:
-            print(f"{bold}{red}Invalid{end} command.\n{bold}{green}Valid{end} commands:{end}\n['l', 'leave', 'x', 'exit'\nor the corresponding number to the inventory item you want to select]")
+            print(f"{bold}{red}Invalid command.\n{green}Valid commands:{white}\n['l', 'leave', 'x', 'exit'\nor the corresponding number to the inventory item you want to select]{end}")
             enter()
 
+# dict of crimes
+crimes = {
+    "0" : {
+        "desc": "You stole vital supplies (food or medicine) to benefit\n   your family, endangering others' lives.",
+        "skills": "Survival Skills, Stealth",
+        "items": "Satchel containing basic survival tools (multipurpose knife, small water flask, compact first aid kit)\nRations (a few days' worth of stolen preserved food and water)",
+        "implications": "Others may have a hard time trusting you."
+    },
+   "1" : {
+        "desc": "You were a leader in a rebellion against the oppressive Guard on the Ark.",
+        "skills": "Leadership, Persuasion",
+        "items" : "Modified Radio (for encrypted messages within the rebel network)\nThrowing Knives\nDocuments detailing Ark government corruption",
+        "implications" : "Those who distrust authority figures are likely to respect you,but\nyou may also be a target for stricter leadership among the survivers.",
+    },
+    "2" : {
+        "desc": "You stole (and smoked) medicinal cannabis from the hydroponic farm.",
+        "skills": "Plant Knowledge, Creative Problem-Solving",
+        "items" : "Herb Pouch (containing the cannabis for recreational use or trade)\nPipes (for smoking or trading)\nTwo days' rations\nSmall waterskin,\nShiv",
+        "implications" : "You have a preference for escapism and a disregard for rules.",
+    },
+    "3" : {
+        "desc": "You were a second child, illegal under the Ark's one-child policy.",
+        "skills": "Forgery, Evasion",
+        "items" : "Forgery kit (tools & materials for creating false documents or diguises)\nLockpicks\nDark Cloak (designed to blend into the surroundings, aiding in stealth/evasion)\nDagger",
+        "implications" : "You are an independent survivalist due to a life in hiding.",
+    },
+    "4" : {
+        "desc": "You were falsely accused of sabotaging critical life support systems on the Ark.",
+        "skills": "Engineering, Resourcefulness",
+        "items" : "Toolkit (for repairs and technical work)\nPortable Device (for analyzing and diagnosing technical issues)\nSpare Parts salvaged from the Ark\nPersonal Journal (detailing your innocencea nd efforts to uncover the true Ark saboteur)",
+        "implications" : "Others are constantly skeptical and scrutinous of you.",
+    },
+}
+
 # functions for gameplay
-def choose_fighter():
+def intro(): # get introduced to the game and choose your character
+    player = None
     clear()
-    print("\nChoose your class:\n")
-    draw()
-    print(f"[{bold}{red}Jaka {normal}(Thief){end}\t\t\t\tGood strength       |  Excellent dexterity  |  Dagger")
-    print(f"[{bold}{yellow}Wanheda {normal}(Commander of Death){end}\t\tExcellent strength  |  Ok dexterity         |  Rapier")
-    print(f"[{bold}{cyan}Fleimkepa {normal}(Flamekeeper){end}\t\tGood strength       |  Excellent dexterity  |  Glaive")
-    print(f"[{bold}{purple}Natblida Gona {normal}(Nightblood Warrior){end}\tExcellent strength  |  Good dexterity       |  Crossbow")
-    draw()
+    print("When the nuclear apocalypse destroyed Earth, groups\nof lucky individuals made it onto 13 space stations\nand shot themselves into space to ensure the survival\nof the human race. 12 space stations joined together\nand were renamed the Ark.")
+    t.sleep(2)
+    print("\nOn the Ark, every crime is punishable by death unless\nyou are under 18 years old, in which case, you get\nimprisoned in lockup.")
+    t.sleep(2)
+    print("\n97 years post-apocalypse, you are a prisoner on the Ark.\n")
+    t.sleep(2)
+    input(f"[{bold}{cyan}Enter{end}] to choose your crime\n")
+
+    while True:
+        clear()
+        print(f"What was your crime?\n(select the number that corresponds with each crime to see details)\n")
+        draw()
+        counter = 1
+        for i in crimes:
+            print(f"{counter}. {crimes[i]['desc']}\n")
+            counter += 1 
+        draw()
+        crime = input("\n> ").strip().lower()
+        
+        if crime.isdigit() and 0 <= int(crime) <= len(crimes):
+            crime_index = int(crime) - 1 # converting answer into index
+            crime_choice = crimes[str(crime_index)]
+
+            print("\nSkills | Items | Implications | Select")
+            info = input("> ").strip().lower()
+
+            if info in ['skills', 'skill']: # skills
+                print(f"\n{bold}{crime_choice['skills']}{end}")
+                enter()
+                continue
+
+            elif info in ['items', 'item']: # items
+                print(f"\n{bold}{crime_choice['items']}{end}")
+                enter()
+                continue
+            
+            elif info in ['implications', 'i']: # implications
+                print(f"\n{bold}{crime_choice['implications']}{end}")
+                enter()
+                continue
+
+            elif info in ['select', 's']: # if select this character!
+                select = input('\nDid you mean to select this crime?\n> ').strip().lower() # confirming selection
+                
+                if select in ['y', 'yes']: # yes
+                    char_name = input("\nWhat is your character's name?\n> ").strip().title()
+                    while char_name is "": # if they don't write a name, make them
+                        char_name = input('Please enter a name\n\n> ').strip().title()
+                    
+                    if crime_index == 0: # vital supplies
+                        player = Player(char_name, 20, 20, 10, 3, 4, 0, 12, None, None, {})
+                        player.add_to_inv(multipurpose_knife, 1)
+                        player.add_to_inv(wristband, 1)
+                        player.add_to_inv("1 days rations", 3)
+                        player.add_to_inv("small waterskin", 1)
+                        ### create items for inv
+                        #player.add_to_inv(first_aid_kit, 1)
+                    
+                    elif crime_index == 1: # rebellion leader
+                        player = Player(char_name, 20, 20, 10, 4, 3, 0, 12, None, None, {})
+                        player.add_to_inv(throwing_knives, 1)
+                        player.add_to_inv(wristband, 1)
+                        ### create items for inv
+                        #player.add_to_inv(radio, 1)
+                        #player.add_to_inv(govt_docs, 1)
+                        #player.add_to_inv(light_armor) ###??? do you want to add this or something else?
+                    
+                    elif crime_index == 2: # cannabis thief
+                        player = Player(char_name, 20, 20, 10, 3, 4, 0, 12, None, None, {})
+                        player.add_to_inv(shiv, 1)
+                        player.add_to_inv(wristband, 1)
+                        player.add_to_inv("1 days rations", 2)
+                        player.add_to_inv("small waterskin", 1)
+                        ### create items for inventory
+                        #player.add_to_inv(herbs, 1)
+                        #player.add_to_inv(pipe, 1)
+
+                    elif crime_index == 3: # second child
+                        player = Player(char_name, 20, 20, 10, 4, 3, 0, 12, None, None, {})
+                        player.add_to_inv(dagger, 1)
+                        player.add_to_inv(wristband, 1)
+                        player.add_to_inv("lockpick", 1)
+                        ### create items for inv
+                        #player.add_to_inv(forgery_kit, 1)
+                        #player.add_to_inv(dark_cloak, 1)
+                   
+                    elif crime_index == 4: # falsely accused
+                        player = Player(char_name, 20, 20, 10, 3, 4, 0, 12, None, None, {})
+                        player.add_to_inv(wrench)
+                        player.add_to_inv(wristband, 1)
+                        ### create items for inv
+                        #player.add_to_inv(toolkit, 1)
+                        #player.add_to_inv(portable_device, 1)
+                        #player.add_to_inv(spare_part, 4)
+                        #player.add_to_inv(personal_journal, 1)
+
+                    return player
+
+                elif select in ['n', 'no']: # no
+                    enter()
+                    continue
+                
+                else: # invalid input handling
+                    print(f"{red}{bold}Invalid command.\n{green}Valid commands:{white}['yes', 'y'\n'no', 'n']")
+                    enter()
+                    continue
+            else: # invalid input handling
+                print(f"{red}{bold}Invalid command.\n{green}Valid commands:{white}\n['skills', 'skill'\n'items', 'item'\n'implications', 'i'\n'select', 's']")
+                enter()
+                continue
+
+        elif crime_index < 0 or crime_index > 4: # invalid input handling
+            print(f'{red}{bold}Invalid command.\n{green}Please enter the number that corresponds\nwith the crime your character has committed{end}')
+            enter()
+            clear()
+            continue
+
 def go_to_Polis():
     clear()
     print(f"As you approach the imposing gates of {bold}{yellow}Polis{end} a sense of wonder\nand trepidation washes over you.\nThe ancient city stands as a testament to resilience in\na world devastated by nuclear catastrophe.\n")
@@ -403,15 +603,12 @@ def go_to_Polis():
         action = input("> ").strip().lower()
         if action in ['x', 'exit']: # exit
             player.save_game('load.json') # autosave
-            print(f"{green}>>saved<<{end}")
             print("Goodbye!")
             quit()
         if action in ['i', 'inv', 'inventory']: # inventory
             print_inventory()
         elif action == "save": # save
             player.save_game('load.json') # autosave
-            print(f"{green}>>saved<<")
-            t.sleep(0.5)
         elif action in ['s', 'stats']: # stats
             player.print_stats()
         elif action in ['m', 'marketplace', 'market', 'store']: # marketplace
@@ -490,7 +687,7 @@ def go_to_Market():
                 # printing list of weapons
                 print(f"{bold}Item\t\t\tPrice{end}\n")
                 count = 1
-                for w in weapons_all:
+                for w in weapons_for_sale:
                     if len(w.name) <= 12: print(f'{count}. {w.name.title()}\t\t{gold}[{w.price} gp]{end}')
                     else: print(f'{count}. {w.name.title()}\t{gold}[{w.price} gp]{end}')
                     count += 1
@@ -505,9 +702,9 @@ def go_to_Market():
                         enter()
                         continue
                 
-                elif w_choice.isdigit() and int(w_choice) <= len(weapons_all): # if it's a number on the list
+                elif w_choice.isdigit() and int(w_choice) <= len(weapons_for_sale): # if it's a number on the list
                     weapon_index = int(w_choice) - 1 # getting index of item in list
-                    weapon_choice = weapons_all[weapon_index] # assigning weapon they chose into value
+                    weapon_choice = weapons_for_sale[weapon_index] # assigning weapon they chose into value
                     print(f"{weapon_choice.name.title()}\nBuy | Read Desc | Exit")
                     answer = input("\n> ").strip().lower()
                     if answer in ['b', 'buy']:
@@ -729,22 +926,28 @@ class Tek(Potions):
     def use_wristband(self):
         pass ### create functionality for radiation alert & turning on night vision, plus any other effectss you may add to it
 
-# list of all weapons
+# weapon objects
 glaive = Weapons('glaive', 'This glaive boasts a gleaming obsidian blade with intricate,\nethereal runes etched along its length, set upon a polished, ebony-hued\nshaft adorned with menacing, dragon-shaped pommel.', 20, False, True, False, 10)
 rapier = Weapons('rapier', 'This rapier is an elegantly slender and silvered blade,\nits handle intricately adorned with sapphire-encrusted crossguards\nand a hilt of black leather wrapped in silver thread.', 25, False, True, False, 8)
 dagger = Weapons('dagger', 'The dagger gleams with a wickedly curved obsidian blade,\na hilt wrapped in midnight-blue leather, and\na pommel adorned with a menacing onyx gemstone.', 2, True, False, False, 4)
 crossbow = Weapons('crossbow', 'This crossbow features a sleek, polished mahogany stock adorned\nwith intricate ivory inlays, a glistening steel barrel, and an\nexquisitely carved ebony trigger guard, giving it\nan air of both beauty and deadly precision.', 25, False, False, True, 8)
 butterfly_sword = Weapons('butterfly sword', 'The butterfly sword boasts a pair of elegantly slender blades\nwith intricately carved jade hilts, their unique S-shaped guards\ndesigned for fluid, acrobatic combat Tekniques.', 10, True, False, False, 6)
 reaper_stick = Weapons('reaper stick', 'WRITE DESCRIPTION', 10, False, True, False, 8)
-reaper_cleaver = Weapons('reaper cleaver', 'The Reaper Cleaver is a massive, double-edged greataxe\nwith a rusted and jagged blade, imbued with a menacing aura,\nsuggesting the cruelty of its wielder.', 30, False, True, False, 12)
-weapons_all = [glaive, rapier, dagger, crossbow, butterfly_sword, reaper_stick, reaper_cleaver]
+reaper_cleaver = Weapons('reaper cleaver', 'The Reaper Cleaver is a massive, double-edged greataxe\nwith a rusted and jagged blade, imbued with a menacing aura,\nsuggesting the cruelty of its wielder.', 30, False, True, False, 8)
+multipurpose_knife = Weapons('multipurpose knife', 'A compact tool featuring a sharp blade,\nserrated edge, firestarter, bone saw, and an LED flashlight', 50, False, True, False, 6)
+throwing_knives = Weapons('throwing knives', 'Set of 5 sleek, lightweight knives balanced for precision,\nmaking them deadly when thrown accurately or used up close.', 10, True, False, False, 4)
+shiv = Weapons('shiv', 'A small, sharp blade attached to a handle\nmade from scrap metal', 0, False, True, False, 6)
+wrench = Weapons('mechanical wrench blade', 'Combines a a sturdy metal wrench with a retractable, razor-sharp blade\n Originally designed for enginering repairs, the blade can be extended\nfor use as a melee weapon.', 0, False, True, False, 8)
+shortbow = Weapons('shortbow', 'The shortbow\'s silent operation and lightweight design\nmake it an excellent choice for individuals relying on stealth\nand precision in their encounters', 25, False, False, True, 6)
+weapons_all = [glaive, rapier, dagger, crossbow, butterfly_sword, reaper_stick, reaper_cleaver, multipurpose_knife, throwing_knives, shiv, wrench, shortbow]
+weapons_for_sale = [glaive, rapier, dagger, crossbow, butterfly_sword, reaper_stick, reaper_cleaver, multipurpose_knife, throwing_knives, shortbow]
 
 # list of all potions
 health_potion = Potions('health potion', 'A glimmering green liquid', 3, "You ingest the green potion and gain 5 health")
 knowledge_potion = Potions('knowledge potion', 'A swirling pearl potion which helps you gain knowledge', 5, "You drink the potion and gain 15 XP")
 potions_all = [health_potion, knowledge_potion]
 
-# list of all tek
+# tek objects
 wristband = Tek('wristband', 'These wristbands came with the original 102 to the ground.\nThey were used to measure their vital signs and to\ncommunicate with those still on the Ark.', 50, 'This helpful wristband will give you radiation alerts and night-vision.')
 gas_mask = Tek('gas mask', 'A gas mask is crucial in a radiation-struck world.\nIt filters out knockout gas and other toxic pollutants.', 35, 'Renders the wearer immune to knockout gas\nand less susceptible to radiation and Earth\'s toxic air')
 knockout_gas = Tek('vial of knockout gas','Knockout gas is used by the mountain men.\nIt is a potent chemical agent which, like\nthe name says, knocks out whoever inhales it.', 50, 'Everyone within a 10mi radius') ### change radius it affects?
@@ -752,7 +955,7 @@ the_fleim = Tek('the fleim', 'The Fleim, a sacred artifact, embodies the collect
 tek_for_sale = [wristband, gas_mask, knockout_gas]
 tek_all = [wristband, gas_mask, the_fleim, knockout_gas]
 
-# list of enemies
+# enemy objects
 ### THINK ABOUT adding these attributes to Enemy: list of different attack options, 4 options for damage they can do to player (either damage can be randomly chosen or we give them str/dex modifiers for it), death (a string with how each enemy dies)
 reaper = Enemy('reaper', 12, 4, 3, 15, 15, reaper_stick, 3, dagger)
 azgeda = Enemy('azgeda warrior', 15, 3, 4, 20, 20, butterfly_sword, 5, rapier)
@@ -762,9 +965,7 @@ random_enemy_list = [reaper, azgeda] # list of enemies that randomly spawn
 random_enemy = r.choice(random_enemy_list) 
 enemies_all = [reaper, azgeda, mountain_man]
 
-
 ## RUN GAME ##
-player = None
 while run:
     while mainMenu: # in main menu
         clear()
@@ -774,56 +975,21 @@ while run:
         choice = input("> ").strip().lower() # choice
         clear()
         if choice in ['1', 'n', 'new', 'new game']: # new game
-            while True:
-                choose_fighter()
-                fighter = input("> ").strip().lower()
-                if fighter in ['j', 'jaka','t', 'thief']:
-                    player = Player('Jaka', 20, 20, 10, 3, 4, 0, 15, None, None, {}) # passing in information about player
-                    # starting inventory items
-                    player.add_to_inv(dagger, 1) 
-                    player.add_to_inv(health_potion, 3)
-                    player.add_to_inv(knowledge_potion, 1)
-                    enter()
-                    break
-                elif fighter in ['w', 'wanheda', 'c', 'commander of death']:
-                    player  = Player('Wanheda', 20, 20, 10, 4, 2, 0, 15, None, None, {})
-                    # starting inventory items
-                    player.add_to_inv(rapier, 1) 
-                    player.add_to_inv(health_potion, 3)
-                    player.add_to_inv(knowledge_potion, 1)
-                    enter()
-                    break
-                elif fighter in ['f', 'fleimkepa', 'flamekeeper', 'fleim', 'flame']:
-                    player  = Player('Fleimkepa', 20, 20, 10, 3, 5, 0, 15, None, None, {})
-                    # starting inventory items
-                    player.add_to_inv(glaive, 1) 
-                    player.add_to_inv(health_potion, 3)
-                    player.add_to_inv(knowledge_potion, 1)
-                    enter()
-                    break
-                elif fighter in ['n', 'natblida', 'nightblood', 'natblida gona', 'nightblood warrior', 'g', 'gona', 'w', 'warrior']:
-                    player  = Player('Natblida Gona', 20, 20, 10, 5, 3, 0, 15, None, None, {})
-                    # starting inventory items
-                    player.add_to_inv(crossbow, 1) 
-                    player.add_to_inv(health_potion, 3)
-                    player.add_to_inv(knowledge_potion, 1)
-                    enter()
-                    break
-                else:  # if enter wrong thing
-                    print(f"{red}{bold}Invalid{white} command\n{green}Valid {white}commands{end}:\n['j', 'jaka','t', 'thief'\n'w', 'wanheda', 'c', 'commander of death'\n'f', 'fleimkepa', 'flamekeeper', 'fleim', 'flame'\n'n', 'natblida', 'nightblood', 'natblida gona', 'nightblood warrior', 'g', 'gona', 'w', 'warrior']")
-                    enter()
-                    clear()
-                
-            if player is not None:
+            player = intro()
+            if player is not None: 
+                print(f"{bold}>>{player.name} created<<{end}")
                 player.save_game('load.json')
-            mainMenu = False
-            play = True
-            clear()
+                mainMenu = False
+                play = True
+            else:
+                print("Invalid character selection. Please try again.")
+                enter()
+                mainMenu = True
         
         elif choice in ['2', 'l', 'load', 'load game']: # load game
-            loaded_player = Player.load_game('load.json') # assign loaded player
-            if loaded_player is not None:
-                player = loaded_player
+            player = Player.load_game('load.json') # assign loaded player
+            if player is not None:
+                player = player
                 print(f"Welcome back, {player.name}")
                 enter()
                 mainMenu = False
@@ -850,36 +1016,3 @@ while run:
     while play:
         player.save_game('load.json') # autosave
         go_to_Polis()
-
-
-## BUGS
-'''
-1.  When you load a saved game, the inventory functionality stops working. 
-    It won't let you select an inventory item. When you buy something at market, 
-    it also does not increase quantity of items if you already have one in your inventory. 
-    It adds a whole new item. This may give some insight onto why it isn't loading properly? 
-    It is seeing these as strinsg and not objects perhaps?
-    --> Perhaps an issue with how the data is saved/loaded into the game?'''
-
-## Notes as of 10/03/2023
-'''
-Ideas to build on:
-1. Considering making this a 2d game instead of text based as an opportunity to expand my skillset further.
-   Going to learn pygame and then decide if it is the right move for this game. --> so far, i don't think it 
-   is unless i want to make all original artwork
-2. Will likely add radiation levels to the game so there may be waves of radiation which could affect order of events. 
-   I.e., there is a wave of radiation and you need to use some resources to survive that. (could also have mountain men 
-   ambush with acid fog/knock-out gas)
-3. I may change the setting from Earth to Sanctum. It will introduce other environmental elements such as the red sun 
-   eclipse & the anomaly
-
-NEXT STEPS:
-1. Need to add ability to actually use tek in a scenario where it can help
-2. Change setting from Earth to Sanctum, start diving more into the actual storyline/game rather than setting up mechanics
-    --> decide if the game will be linear, include quests, etc.
-3. Break game up into multiple documents so the code isn't so long?
-
-Changes made since last github update:
-1. Moved the attack method to the player class instead of the weapons class, as it made more sense that way.
-2. Added enemy attacks as well as made the battle UI more physically appealing and gave player option to use an inventory item as their turn
-'''
