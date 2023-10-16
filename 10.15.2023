@@ -1,4 +1,4 @@
-## The 100 RPG Game 
+## The 100 RPG
 ## Making classes for player, NPCs, weapons, potions  ##
 
 import random as r, os, pickle, time as t
