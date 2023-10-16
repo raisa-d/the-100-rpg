@@ -14,7 +14,7 @@
 
 ## Development Status
 
-As of 10/03/2023, the game is in the early stages of development. Key functionalities such as NPCs and the effects of Tek are being implemented. In-game items and storyline flowchart are also in early stages of development. Sections marked with "###" indicate areas that are still under construction.
+As of 10/15/2023, the game is in the early stages of development. Key functionalities such as NPCs and the effects of Tek and other items are being implemented. In-game items and storyline flowchart are also in early stages of development. Sections marked with "###" indicate areas that are still under construction.
 
 ## Installation
 
@@ -25,11 +25,11 @@ To get started, follow these steps:
 
 ## Usage
 
-- Choose a character class that suits your playstyle.
+- Choose your character's crime that suits your playstyle.
 - Explore the richly detailed world of "The 100."
 - Engage in thrilling turn-based battles with various enemies.
 - Manage your inventory and collect items.
-- Form relationships with NPCs who inhabit the world.
+- Have unique interactions with NPCs based on your player's crime.
 
 ## Features
 
@@ -40,14 +40,14 @@ To get started, follow these steps:
 ## How to Play
 
 1. Launch the game.
-2. Select a character class to begin your adventure.
+2. Select a character crime to begin your adventure.
 3. Navigate through the game world by typing commands.
 4. Participate in battles by entering attack commands.
 5. Manage your inventory using specific commands.
 
 ## Bugs
 
-Currently, there is a known bug where loading a saved game may cause the inventory functionality to stop working, preventing access to inventory item actions. The development team is working to resolve this issue.
+Currently, there are two knowns: One where loading a saved game may cause the inventory functionality to stop working, preventing access to inventory item actions. The game will crash if you choose 0 as your crime choice. The development team is working to resolve these issues.
 
 ## Inspiration
 
