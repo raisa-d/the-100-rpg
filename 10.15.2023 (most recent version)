@@ -2,6 +2,7 @@
 ## Making classes for player, NPCs, weapons, potions  ##
 
 import random as r, os, pickle, time as t
+from dictionaries import crimes, inv_items
 
 # default booleans
 run = True # game is running
@@ -33,6 +34,9 @@ orange = '\x1b[38;2;255;90;0m\x1b[1m'
 yellow = "\033[33m"
 green = "\033[32m"
 blue =  "\033[34m"
+lime = '\x1b[38;2;00;255;00m\x1b[1m'
+turquoise = '\x1b[38;2;0;255;255m\x1b[1m'
+teal = '\x1b[38;2;0;170;170m\x1b[1m'
 purple = "\033[35m"
 cyan = "\033[36m"
 white = "\033[37m"
@@ -46,7 +50,6 @@ def Title(): # print out game header
     print(Title)
     print(f"{author:^90}\n")
 def clear():
-    os.system("clear")
     os.system("clear")
     Title()
 def enter():
@@ -134,7 +137,7 @@ class Player:
             print(f"You don't have {selected_tek} in your inventory.")
             enter()
 
-    def battle(self, target): ### add option to go to inventory in each round of battle, add round numbers and actually design the battle UI
+    def battle(self, target): 
         round = 1
         while target.HP > 0: # battle loop
             # print battle screen and round number
@@ -153,7 +156,7 @@ class Player:
                 if attack_or_inv in ['a', 'attack']: # if choose attack
                     if self.equipped_weapon is not None:
                         if self.equipped_weapon.finesse == True: # if finesse weapon, choice of str or dex_mod
-                                str_mod_or_dex_mod = input(f"Do you want to use your  Strength ({self.str_mod}) or Dexterity ({self.dex_mod}) modifier?\n> ").strip().lower()
+                                str_mod_or_dex_mod = input(f"Do you want to use your Strength ({self.str_mod}) or Dexterity ({self.dex_mod}) modifier?\n> ").strip().lower()
                     else: 
                         print('You need to equip a weapon before you battle')
                         break
@@ -202,10 +205,11 @@ class Player:
             if target.currentHP <= 0: # if enemy dies
                 draw()
                 t.sleep(1)
-                print(f"\nYou have defeated the {target.name}!\n\nThey dropped a {bold}{copper}{target.dropItem.name}{end} and {gold}{target.dropGP} gp{end}")
+                print(f"\nYou have defeated the {target.name}!\n\nThey dropped a {bold}{copper}{target.dropItem.name}{end} and {gold}{target.dropGP} gp{end}.\n\nYou gained 3 HP back 🩸.")
                 self.add_to_inv(target.dropItem, 1)
                 self.gp += target.dropGP
                 self.xp += 30
+                self.HP += 3
                 return self.inv, self.gp, self.xp
 
             # enemy's move
@@ -248,7 +252,18 @@ class Player:
     def print_stats(self):
         clear()
         print(f"{bold}{underline}{self.name}{end}")
-        print(f"\n{green}{bold}Health{end} | {self.HP}/{self.maxHP} 🩸\n{gold}Gold{end} | {self.gp}\n\n{red}{bold}Strength {end}| {self.str_mod}\n{purple}{bold}Dexterity{end} | {self.dex_mod}\n{blue}{bold}XP {end}| {self.xp}")
+        print(f"\n{lime}{bold}Health{white}\t\t  | {self.HP}/{self.maxHP} 🩸\n{gold}Gold{white}\t\t  | {self.gp}")
+        print(f"{cyan}Proficiency Bonus{white} | {self.prof_bonus}")
+        print(f"{teal}XP {white}\t\t  | {self.xp}")
+        print(f"{turquoise}Armor Class {white}\t  | {self.AC}{end}")
+        draw()
+        print(f"{bold}\n\t   Ability    Modifier")
+        print(f"{red}Strength{white}     | {self.str_ability} | {self.str_mod}")
+        print(f"{orange}Dexterity{white}    | {self.dex_ability} | {self.dex_mod}")
+        print(f"{yellow}Constitution{white} | {self.const_ability} | {self.const_mod}")
+        print(f"{green}Intelligence{white} | {self.int_ability} | {self.int_mod}")
+        print(f"{blue}Wisdom{white}\t     | {self.wis_ability}  | {self.wis_mod}")
+        print(f"{purple}Charisma{white}     | {self.char_ability} | {self.char_mod}")
         enter()
 
     def save_game(self, filename):
@@ -273,7 +288,7 @@ class Player:
         except Exception as e:
             print(f"{red}Error loading game: {str(e)}")
 
-def print_inventory(): ### ADD: have it also print the quantity of each item in inventory
+def print_inventory():
     while True:
         clear()
         print(f"{bold}{underline}{player.name}{end}")
@@ -457,66 +472,60 @@ def print_inventory(): ### ADD: have it also print the quantity of each item in 
         else:
             print(f"{bold}{red}Invalid command.\n{green}Valid commands:{white}\n['l', 'leave', 'x', 'exit'\nor the corresponding number to the inventory item you want to select]{end}")
             enter()
-
-# dict of crimes
-crimes = {
-    "0" : {
-        "desc": "You stole vital supplies (food or medicine) to benefit\n   your family, endangering others' lives.",
-        "skills": "Stealth, Insight, Sleight of Hand, Deception, Survival",
-        "items": "Satchel containing basic survival tools (multipurpose knife, small water flask, compact first aid kit)\nRations (a few days' worth of stolen preserved food and water)",
-        "implications": "Others may have a hard time trusting you."
-    },
-   "1" : {
-        "desc": "You were a leader in a rebellion against the oppressive Guard on the Ark.",
-        "skills": "Survival, Stealth, Perception, Deception, Athletics",
-        "items" : "Modified Radio (for encrypted messages within the rebel network)\nThrowing Knives\nDocuments detailing Ark government corruption",
-        "implications" : "Those who distrust authority figures are likely to respect you,but\nyou may also be a target for stricter leadership among the survivers.",
-    },
-    "2" : {
-        "desc": "You stole (and smoked) medicinal cannabis from the hydroponic farm.",
-        "skills": "Nature, Perception, Survival, Animal Handling",
-        "items" : "Herb Pouch (containing the cannabis for recreational use or trade)\nPipes (for smoking or trading)\nTwo days' rations\nSmall waterskin\nShiv",
-        "implications" : "You have a preference for escapism and a disregard for rules.",
-    },
-    "3" : {
-        "desc": "You were a second child, illegal under the Ark's one-child policy.",
-        "skills": "Sleath, Acrobatics, Deception, Survival", # Forgery, Evasion
-        "items" : "Forgery kit (tools & materials for creating false documents or diguises)\nLockpicks\nDark Cloak (designed to blend into the surroundings, aiding in stealth/evasion)\nDagger",
-        "implications" : "You are an independent survivalist due to a life in hiding.",
-    },
-    "4" : {
-        "desc": "You were falsely accused of sabotaging critical life support systems on the Ark.",
-        "skills": "History, Insight, Investigation, Arcana", # Engineering, Resourcefulness
-        "items" : "Toolkit (for repairs and technical work)\nPortable Device (for analyzing and diagnosing technical issues)\nSpare Parts salvaged from the Ark\nPersonal Journal (detailing your innocence and efforts to uncover the true Ark saboteur)",
-        "implications" : "Others are constantly skeptical and scrutinous of you.",
-    },
-}
 def generate_code(length):
     symbols = ["&", "%", "$", "#", "@", "*", "+"]
     return ''.join(r.choice(symbols) for i in range(length))
+
 def code_decryption_minigame():
-    clear()
-    minigame_title = f"{orange}{strike}Xx  {end} {orange}Decrypt the Code to Fix Propulsion {strike}  xX{end}\n"
-    print(f"{minigame_title:>90}")
-    print("You encounter a control panel with mysterious symbols.")
-    print("_ _ _ _\nSymbols: &, %, $, #, @, *, +") ### consider changing this so it's kinda like hangman? correct symbols stay
+    symbols_picked = []
     code_length = 4
     correct_code = generate_code(code_length)
+    lives = 5
+    minigame_title = f"{orange}{strike}Xx  {end} {orange}Decrypt the Code{strike}  xX{end}\n"
     # print(f"ANSWER: {correct_code}")
 
-    attempts = 3
-    while attempts > 0:
-        player_guess = input("\nEnter your guess (use symbols without spaces)\n> ").strip().lower()
-        if player_guess == correct_code:
-            print("\nSuccess! The controls unlock.")
-            return True # Successfully completed minigame
-        else:
-            print("\nIncorrect code. Try again.")
-            attempts -=1
-            if attempts > 0: 
-                print(f"You have {attempts} {'attempt' if attempts == 1 else 'attempts'} left.")
-    print("\nFailed to unlock the controls. The alarm blares.")
-    return False # failed minigame
+    while True:
+        clear()
+        print(f"{minigame_title:>110}")
+        print("You encounter a control panel with mysterious symbols.\n")
+
+        code_solved = True # checking if the entire code is correct
+        for i in correct_code:
+            if i in symbols_picked:
+                print(f"{bold}{i}{end}", end=" ")
+                code_solved = True
+            else:
+                print(f"{bold}_{end}", end = " ")
+                code_solved = False
+        
+        print(f"\n\nSymbols: {bold}{orange}&, %, $, #, @, *, +{end}") ### consider changing this so it's kinda like hangman? correct symbols stay
+        print(f"\n{lives} Lives Left")
+        
+        player_guess = input("\nGuess a symbol you think is in the code\n> ").strip().lower()
+
+        if player_guess in symbols_picked: # if you already picked that symbol
+            print(f'You\'ve already guessed symbol {player_guess}')
+            enter()
+            continue
+        symbols_picked.append(player_guess) # add symbol to list
+
+        if player_guess in correct_code: # if symbol is somewhere in the code
+            if code_solved:
+                print(f'\n{bold}{green}Success! You decyrpted the code and fixed the dropship propulsion.{end}')
+                enter()
+                return True
+            else:
+                print("You solved a piece of the code!")
+            enter()
+        else: # if symbol is not in the code
+            print("\nThat symbol is not in the code.")
+            lives -= 1
+            enter()
+
+        if lives <= 0:
+            print("\nYou failed to unlock the controls. The alarm blares.")
+            enter()
+            return False
 
 # functions for gameplay
 def intro(): # get introduced to the game and choose your character
@@ -530,13 +539,14 @@ def intro(): # get introduced to the game and choose your character
     t.sleep(2)
     input(f"[{bold}{cyan}Enter{end}] to choose your crime\n")
 
+def choose_crime():
     while True:
         clear()
-        print(f"What was your crime?\n(type in the number that corresponds with each crime to see details)\n")
+        print(f"{bold}What was your crime?\n(type in the number that corresponds with each crime to see details)\n{end}")
         draw()
         counter = 1
         for i in crimes:
-            print(f"{bold}{blue}{counter}. {crimes[i]['desc']}\n{end}")
+            print(f"{bold}{cyan}{counter}. {crimes[i]['desc']}\n{end}")
             counter += 1 
         draw()
         crime = input("\n> ").strip().lower()
@@ -544,25 +554,18 @@ def intro(): # get introduced to the game and choose your character
         if crime.isdigit() and 0 <= int(crime) <= len(crimes):
             crime_index = int(crime) - 1 # converting answer into index
             crime_choice = crimes[str(crime_index)]
-            print("\nBack | Skills | Items | Implications | Select")
-            
+            print(f"{bold}{crime_choice['title']}{end}")
+            print(f"\n{bold}Back | {red}Skills | {orange}Items | {yellow}Implications | {green}Select |{end}")
             while True:
                 info = input("\n> ").strip().lower()
-
-                if info in ['skills', 'skill']: # skills
+                if info in ['skills', 'skill']: # if choose skills
                     print(f"\n{bold}{crime_choice['skills']}{end}")
-                    #enter()
-                    #continue
 
                 elif info in ['items', 'item']: # items
                     print(f"\n{bold}{crime_choice['items']}{end}")
-                    #enter()
-                    #continue
                 
                 elif info in ['implications', 'imp', 'i']: # implications
                     print(f"\n{bold}{crime_choice['implications']}{end}")
-                    #enter()
-                    #continue
                 
                 elif info in ['b', 'back', 'x', 'exit', 'l', 'leave']:
                     break
@@ -581,16 +584,15 @@ def intro(): # get introduced to the game and choose your character
                             player.add_to_inv(wristband, 1)
                             player.add_to_inv("1 days rations", 3)
                             player.add_to_inv("small waterskin", 1)
-                            ### create items for inv
-                            #player.add_to_inv(first_aid_kit, 1)
+                            player.add_to_inv("first aid kit", 1) ### add scenario where you use this
                         
                         elif crime_index == 1: # rebellion leader
                             player = Player(char_name, 12, 12, 10, 16, 3, 14, 2, 15, 2, 9, -1, 11, 0, 13, 1, 2, 0, 12, throwing_knives, wristband, {})
                             player.add_to_inv(throwing_knives, 1)
                             player.add_to_inv(wristband, 1)
                             ### create items for inv
-                            #player.add_to_inv(radio, 1)
-                            #player.add_to_inv(govt_docs, 1)
+                            player.add_to_inv("radio", 1)
+                            player.add_to_inv("government documents", 1)
                             #player.add_to_inv(light_armor) ###??? do you want to add this or something else?
                         
                         elif crime_index == 2: # cannabis thief
@@ -600,8 +602,8 @@ def intro(): # get introduced to the game and choose your character
                             player.add_to_inv("1 days rations", 2)
                             player.add_to_inv("small waterskin", 1)
                             ### create items for inventory
-                            #player.add_to_inv(herbs, 1)
-                            #player.add_to_inv(pipe, 1)
+                            player.add_to_inv("herbs", 1)
+                            player.add_to_inv("pipe", 1)
 
                         elif crime_index == 3: # second child
                             player = Player(char_name, 12, 12, 10, 16, 3, 15, 2, 14, 2, 11, 0, 9, -1, 13, 1, 2, 0, 12, dagger, wristband, {})
@@ -609,8 +611,8 @@ def intro(): # get introduced to the game and choose your character
                             player.add_to_inv(wristband, 1)
                             player.add_to_inv("lockpick", 1)
                             ### create items for inv
-                            #player.add_to_inv(forgery_kit, 1)
-                            #player.add_to_inv(dark_cloak, 1)
+                            player.add_to_inv(f"forgery kit", 1)
+                            player.add_to_inv("dark cloak", 1)
                     
                         elif crime_index == 4: # falsely accused
                             player = Player(char_name, 10, 10, 10, 16, 3, 15, 2, 14, 2, 9, -1, 13, 1, 11, 0, 2, 0, 13, wrench, wristband, {})
@@ -618,9 +620,9 @@ def intro(): # get introduced to the game and choose your character
                             player.add_to_inv(wristband, 1)
                             player.add_to_inv("portable device", 1)
                             ### create items for inv
-                            #player.add_to_inv(toolkit, 1)
-                            #player.add_to_inv(spare_part, 4)
-                            #player.add_to_inv(personal_journal, 1)
+                            player.add_to_inv("toolkit", 1)
+                            player.add_to_inv("spare parts", 4)
+                            player.add_to_inv("personal journal", 1)
 
                         return player
 
@@ -633,10 +635,10 @@ def intro(): # get introduced to the game and choose your character
                         enter()
                         continue
                 else: # invalid input handling
-                    print(f"{red}{bold}Invalid command.\n{green}Valid commands:{white}\n['b', 'back', 'x', 'exit', 'l', 'leave'\n'skills', 'skill'\n'items', 'item'\n'implications', 'imp', 'i'\n'select', 's']")
+                    print(f"{red}{bold}Invalid command.\n{green}Valid commands:{end}\n['b', 'back', 'x', 'exit', 'l', 'leave'\n'skills', 'skill'\n'items', 'item'\n'implications', 'imp', 'i'\n'select', 's']")
                     enter()
-                    continue
-
+                    break
+                    
         else: # invalid input handling
             print(f'{red}{bold}Invalid command.\n{green}Please enter the number that corresponds\nwith the crime your character has committed{end}')
             enter()
@@ -645,36 +647,46 @@ def intro(): # get introduced to the game and choose your character
 
 def go_to_Earth(): ### write cutscene
     global crime_index
-    clear()
-    print('Guards suddenly rush into your cell and bark at you, "Let\'s go!"\nThey take you by your arm and drag you down the Ark corridors.')
-    t.sleep(1)
-    print('\nYou look around and see that the other prisoners are being\nherded in the same direction, looking terrified.\n')
-    t.sleep(1)
-    print('Do you...\na) try to ask the guard where they are taking you\nb) stay quiet')
-    speak_up = input("\n> ").strip().lower()
-    if speak_up == "a": # if ask where they're taking you
-        print('The guard shoots you a menacing expression and grunts at you.')
-        t.sleep(1)
-        if multipurpose_knife in player.inv: # if crime was stealing vital stuff -- people don't trust you
-            print('\nYou make eye contact with the prisoner to your left and try to\nnonverbally communicate "What the **** is going on?"\n\nThe prisoner gives you some side-eye.')
+    while True: 
+        clear()
+        print('Guards suddenly rush into your cell and bark at you, "Let\'s go!"\nThey take you by your arm and drag you down the Ark corridors.')
+        #t.sleep(1)
+        print('\nYou look around and see that the other prisoners are being\nherded in the same direction, looking terrified.\n')
+        #t.sleep(1)
+        print('Do you...\na) try to ask the guard where they are taking you\nb) stay quiet')
+        speak_up = input("\n> ").strip().lower()
+        if speak_up == "a": # if ask where they're taking you
+            print(f'{bold}The guard shoots you a menacing expression and grunts at you.')
+            t.sleep(1)
+            if multipurpose_knife in player.inv: # if crime was stealing vital stuff -- people don't trust you
+                print(f'\nYou make eye contact with the prisoner to your left and try to\nnonverbally communicate "What the **** is going on?"\n\nThe prisoner gives you some side-eye.{end}')
+                enter()
+                break
+            elif throwing_knives in player.inv: # if crime: leading a rebellion
+                print(f'\nYou exchange a glance with another prisoner, who mouths to you\nin a panic: "They\'re sending us...down.{end}"') ### this NPC was arrested for treason? define who these prisoners are
+                enter()
+                break
+            elif shiv in player.inv: # if crime: cannabis thievery
+                print(f'\nYou realize you\'re still a little bit baked from smoking\nthe last of the stash you had hidden in the air ducts in your cell.\n\nYou begin to realize you have no clue what\'s going on.{end}') ### 
+                enter()
+                break
+            elif dagger in player.inv: # if crime: 2nd child
+                print(f'\nAnother prisoner tries to get your attention\nand has a panicked look on their face.{end}') ###
+                enter()
+                break
+            elif wrench in player.inv: # if crime: falsely accused
+                print(f'\nYou look to your right and see a prisoner nearby\nstruggling to get out of a guard\'s grasp{end}')
+                enter()
+                break
+        elif speak_up == "b": # if you don't
+            print(f'The prisoner next to you is yelling "Where are you taking us?!" at one of the Guard members,\nwho maintains a cold and aggressive expression.{end}') ### you observe your surroundings and see worried faces, clues as to what could be happening
             enter()
-        elif throwing_knives in player.inv: # if crime: leading a rebellion
-            print('\nYou exchange a glance with another prisoner, who mouths to you\nin a panic: "They\'re sending us...down."') ### this NPC was arrested for treason? define who these prisoners are
+            break
+        else:
+            print(f"{red}{bold}Invalid command.{green}\nValid commands:\n{white}['a', 'b']{end}")
             enter()
-        elif shiv in player.inv: # if crime: cannabis thievery
-            print('\nYou realize you\'re still a little bit baked from smoking\nthe last of the stash you had hidden in the air ducts in your cell.\nYou begin to realize you have no clue what\'s going on.') ### 
-            enter()
-        elif dagger in player.inv: # if crime: 2nd child
-            print('\nAnother prisoner tries to get your attention\nand has a panicked look on their face.') ###
-            enter()
-        elif wrench in player.inv: # if crime: falsely accused
-            print('\nYou look to your right and see a prisoner nearby\nstruggling to get out of a guard\'s grasp')
-            enter()
-    elif speak_up == "b": # if you don't
-        print('The prisoner next to you is yelling "Where are you taking us?!" at one of the Guard members,\nwho maintains a cold and aggressive expression.') ### you observe your surroundings and see worried faces, clues as to what could be happening
-        enter()
-    else:
-        print(f"{red}{bold}Invalid command.{green}\nValid commands:\n{white}['a', 'b']")
+            clear()
+            continue
 
     # scene: getting to dropship
     clear()
@@ -701,15 +713,15 @@ def go_to_Earth(): ### write cutscene
     t.sleep(1)
     print("\nYou launch into space.")
     t.sleep(1)
-    print("\nYour body fills with exhilaration and fear as you hurtle through\nEarth's atmosphere. The anticipation of stepping outside and onto the\nground makes your heart pound more violently.")
+    print("\nYour body fills with exhilaration and fear as you hurtle through\nEarth's atmosphere. The anticipation of stepping outside and\nonto the ground makes your heart pound more violently.")
     t.sleep(1)
     
     # dropship malfunction
-    print(f"\n{bold}Suddenly, the descent turns into a {red}chaotic freefall.{white} The dropship\nshakes aggressively and you all try to grip anything stable. The engine\nbecomes very loud, intesifying the feeling of {orange}imminent danger{white}\nand helplessness.{end}")
+    print(f"\n{bold}Suddenly, the descent turns into a {red}chaotic freefall.{white} The dropship\nshakes aggressively and you all try to grip anything stable. The\nengine becomes very loud, intesifying the feeling of {orange}imminent\ndanger{white} and helplessness.{end}")
     t.sleep(1)
-    print("\nDo you...\na) attempt to fix the issue or\nb) brace for impact?")
-    fix_or_brace = input("> ").strip().lower()
     while True:
+        print("\nDo you...\na) attempt to fix the issue or\nb) brace for impact?")
+        fix_or_brace = input("> ").strip().lower()
         dmg_identified = False
         if fix_or_brace in ['a', 'fix', 'fix the issue', 'f']:
             clear()
@@ -719,13 +731,13 @@ def go_to_Earth(): ### write cutscene
                 print("\nYou use your device and successfully identify a damaged component in the dropship\'s propulsion system")
                 enter()
                 dmg_identified = True
-            else:
+            else: # investigation skill check
                 print(f"\n{player.name} will use an investigation skill check to assess the malfunction")
                 t.sleep(1)
-                print("\nRolling d20...")
+                print("\nRolling d20 and adding your intelligence modifier...")
                 t.sleep(1)
                 inv_check = diceRoll(20) + player.int_mod
-                print(f"\nYou rolled {inv_check}")
+                print(f"\nYou got {inv_check}")
                 t.sleep(1)
                 if inv_check > 8: # chose 6 as difficulty class for this task, don't want it to be unattainable but not too easy either
                     print("\nYou have successfully identified a damaged component in the dropship's propulsion system.")
@@ -737,16 +749,16 @@ def go_to_Earth(): ### write cutscene
                     enter()
                     break
         
-            while dmg_identified is True:
-                code_decryption_minigame()
-                if code_decryption_minigame is True: #if they were successful
+            while dmg_identified is True: # if you successfully assess damage, move onto code decryption minigame to fix it
+                fixed = code_decryption_minigame()
+                if fixed is True: #if they were successful
                     print("You successfully fixed the propulsion system!\n--> REWARDS") ### code rewards, what happens (spaceship steadies, safe landing, etc.)
                     enter()
-                    break
+                    return True
                 else:
                     print("\nYou were unsuccessful at repairing the propulsion system and brace for impact.\n--> CONSEQUENCES")
                     enter()
-                    return
+                    return False
         
         elif fix_or_brace in ['b', 'brace', 'brace for impact']:
             print('WRITE WHAT HAPPENS IF YOU BRACE') ###
@@ -754,6 +766,7 @@ def go_to_Earth(): ### write cutscene
         else:
             print(f"{bold}{red}Invalid command.{green}\nValid commands:\n['a', 'fix', 'fix the issue', 'f',\n'b', 'brace', 'brace for impact']{end}")
             enter()
+            clear()
             continue
 
 def go_to_Polis():
@@ -1123,9 +1136,9 @@ tek_all = [wristband, gas_mask, the_fleim, knockout_gas]
 
 # enemy objects
 ### THINK ABOUT adding these attributes to Enemy: list of different attack options, 4 options for damage they can do to player (either damage can be randomly chosen or we give them str/dex modifiers for it), death (a string with how each enemy dies)
-reaper = Enemy('reaper', 12, 4, 3, 15, 15, reaper_stick, 3, dagger)
-azgeda = Enemy('azgeda warrior', 10, 2, 2, 10, 10, butterfly_sword, 5, rapier)
-mountain_man = Enemy('mountain man', 18, 3, 4, 15, 18, knockout_gas, 10, crossbow)
+reaper = Enemy('reaper', 12, 1, 1, 15, 15, reaper_stick, 3, dagger)
+azgeda = Enemy('azgeda warrior', 10, 1, 1, 10, 10, butterfly_sword, 5, rapier)
+mountain_man = Enemy('mountain man', 18, 1, 2, 15, 18, knockout_gas, 10, crossbow)
 
 random_enemy_list = [reaper, azgeda] # list of enemies that randomly spawn
 random_enemy = r.choice(random_enemy_list) 
@@ -1139,12 +1152,12 @@ while run:
         print("1. New Game\n2. Load Game\n3. Quit game") # menu options
         draw()
         choice = input("> ").strip().lower() # choice
-        clear()
         if choice in ['1', 'n', 'new', 'new game']: # new game
-            player = intro()
+            intro() # play intro cutscene --> commented out right now for playtesting speed
+            player = choose_crime() # choose crime and return player object based on their choice
             if player is not None: 
                 print(f"\n{bold}>>{player.name} created<<{end}")
-                player.save_game('load.json')
+                t.sleep(0.5)
                 mainMenu = False
                 play = True
             else:
@@ -1170,16 +1183,55 @@ while run:
             quit = input("\nAre you sure you want to quit the game (y/n)?\n> ").strip().lower()
             if quit == "y":
                 clear()
-
                 print("Goodbye!")
                 exit()
 
         else: # if enter wrong thing
             print(f"{bold}{red}Invalid{white} command.\n{green}Valid{white} commands:{end}\n['1', 'n', 'new', 'new game'\n'2', 'l', 'load', 'load game'\n'3', 'q', 'quit', 'quit game', 'x']")
             enter()
-            break
+            continue
 
     while play:
         player.save_game('load.json') # autosave
         go_to_Earth()
         go_to_Polis()
+
+## BUGS
+'''
+1.  When you load a saved game, the inventory functionality stops working. 
+    It won't let you select an inventory item. When you buy something at market, 
+    it also does not increase quantity of items if you already have one in your inventory. 
+    It adds a whole new item. This may give some insight onto why it isn't loading properly? 
+    It is seeing these as strinsg and not objects perhaps?
+    --> Perhaps an issue with how the data is saved/loaded into the game?
+2. If you are choosing your crime and you choose '0', it will crash
+'''
+
+## Notes as of 10/15/2023
+'''
+Ideas to build on:
+1. Considering making this a 2d game instead of text based as an opportunity to expand my skillset further.
+   Going to learn pygame and then decide if it is the right move for this game. --> so far, i don't think it 
+   is unless i want to make all original artwork
+2. Will likely add radiation levels to the game so there may be waves of radiation which could affect order of events. 
+   I.e., there is a wave of radiation and you need to use some resources to survive that. (could also have mountain men 
+   ambush with acid fog/knock-out gas)
+
+NEXT STEPS:
+1. Add ability to actually use tek in a scenario where it can help and complete everything else with the "###"
+2. Break game up into multiple documents so the code isn't so long?
+3. If you make this game linear, instead of having shops in one specific location, maybe the user runs into merchants on the way to other things
+4. Consider adding book items like an herbalist guide
+6. Create dictionary of inventory items that you currently have (with descriptions, uses, prices if they can be sold) to cut a lot of code from print_inventory()
+7. Implement ability checks and uses for each stat/modifier in battle + in general
+8. Add market stall that sells water, food, etc. 
+
+Changes made since last github update:
+1. Changed stats page to reflect all of the ability scores & modifiers
+2. Code Decryption Minigame to fix dropship propulsion now updates the display if you get one symbol 
+   right instead of making you guess the exact sequence all at once
+3. In the section where you choose what crime your character committed, the UI now says the title of whichever 
+   crime you selected before it presents the options to see more details about the crimes. I also added colors to those options.
+4. Moved crimes dictionary to a separte python file and began to write a dictionary for items such as 1 days rations, the 
+   small waterskin, etc. so I can shorten the print_inventory() method in the Player class.
+'''
