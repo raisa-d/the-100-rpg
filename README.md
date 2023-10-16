@@ -47,7 +47,10 @@ To get started, follow these steps:
 
 ## Bugs
 
-Currently, there are two knowns: One where loading a saved game may cause the inventory functionality to stop working, preventing access to inventory item actions. The game will crash if you choose 0 as your crime choice. The development team is working to resolve these issues.
+Currently, there are two known bugs: 
+1. Loading a saved game may cause the inventory functionality to stop working, preventing access to inventory item actions.
+2. The game will crash if you choose 0 as your crime choice.
+The development team is working to resolve these issues.
 
 ## Inspiration
 
