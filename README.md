@@ -20,7 +20,7 @@ As of 10/15/2023, the game is in the early stages of development. Key functional
 
 To get started, follow these steps:
 
-1. Clone this repository to your local machine (Whichever branch says "(most recent version)".
+1. Clone this repository to your local machine.
 2. Install Python 3 along with the required libraries: `random`, `os`, `pickle`, and `time`.
 
 ## Usage
