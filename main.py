@@ -1,11 +1,11 @@
 ## The 100 RPG Game 
 ## Making classes for player, NPCs, weapons, potions  ##
 
-import random as r, os, pickle, time as t
+import random as r, time as t
 from crime import crimes
-from formatting import clear, enter, draw, diceRoll
+from util import clear, enter, draw, red, underline, bold, end, white, yellow, green, cyan, gold, blue, copper, purple, orange, gray
 from cutscenes import intro, get_to_dropship, launching_dropship
-from events import dropship_malfunction, taken_to_dropship
+from events import go_to_Earth
 from items import Weapons, Potions, Tek, Items, glaive, rapier, dagger, crossbow, butterfly_sword, reaper_stick, reaper_cleaver, multipurpose_knife, throwing_knives, shiv, wrench, shortbow
 from items import health_potion, knowledge_potion, wristband, gas_mask, the_fleim, knockout_gas, rations, small_waterskin, weapons_all, weapons_for_sale, tek_all, tek_for_sale, potions_all
 from playerr import print_inventory, Player
@@ -24,29 +24,6 @@ in_Deadzone = False
 in_ShallowValley = False
 in_Tondc = False
 in_Marketplace = False
-
-# colors
-bold = "\033[1m"
-normal = "\x1b[0m" + "\x1b[38;2;255;255;255m"
-italic = "\033[3m"
-underline = "\033[4m"
-strike = "\033[9m" # strikethrough
-end = "\033[0m" # end any formatting
-gold = "\x1b[38;2;230;190;0m\x1b[1m"
-silver = "\x1b[38;2;221;221;221m\x1b[1m"
-copper = "\x1b[38;2;170;44;0m\x1b[1m"
-red = "\033[31m"
-orange = '\x1b[38;2;255;90;0m\x1b[1m'
-yellow = "\033[33m"
-green = "\033[32m"
-blue =  "\033[34m"
-lime = '\x1b[38;2;00;255;00m\x1b[1m'
-turquoise = '\x1b[38;2;0;255;255m\x1b[1m'
-teal = '\x1b[38;2;0;170;170m\x1b[1m'
-purple = "\033[35m"
-cyan = "\033[36m"
-white = "\033[37m"
-gray = "\033[1;30m"
 
 def choose_crime(): # choose crime/create player instance
     while True:
@@ -91,18 +68,15 @@ def choose_crime(): # choose crime/create player instance
                             player = Player(char_name, 11, 11, 10, 14, 2, 15, 2, 16, 3, 13, 1, 11, 0, 9, -1, 2, 0, 12, multipurpose_knife, wristband, {})
                             player.add_to_inv(multipurpose_knife, 1)
                             player.add_to_inv(wristband, 1)
-                            player.add_to_inv(rations, 3)
+                            player.add_to_inv(rations, 2)
                             player.add_to_inv(small_waterskin, 1)
-                            player.add_to_inv("first aid kit", 1) ### add scenario where you use this
                         
                         elif crime_index == 1: # rebellion leader
                             player = Player(char_name, 12, 12, 10, 16, 3, 14, 2, 15, 2, 9, -1, 11, 0, 13, 1, 2, 0, 12, throwing_knives, wristband, {})
                             player.add_to_inv(throwing_knives, 1)
                             player.add_to_inv(wristband, 1)
-                            ### create items for inv
-                            player.add_to_inv("radio", 1)
-                            player.add_to_inv("government documents", 1)
-                            #player.add_to_inv(light_armor) ###??? do you want to add this or something else?
+                            player.add_to_inv(rations, 2)
+                            player.add_to_inv(small_waterskin, 1)
                         
                         elif crime_index == 2: # cannabis thief
                             player = Player(char_name, 10, 10, 10, 13, 1, 14, 2, 15, 2, 11, 0, 16, 3, 9, -1, 2, 0, 12, shiv, wristband, {})
@@ -110,28 +84,20 @@ def choose_crime(): # choose crime/create player instance
                             player.add_to_inv(wristband, 1)
                             player.add_to_inv(rations, 2)
                             player.add_to_inv(small_waterskin, 1)
-                            ### create items for inventory
-                            player.add_to_inv("herbs", 1)
-                            player.add_to_inv("pipe", 1)
 
                         elif crime_index == 3: # second child
                             player = Player(char_name, 12, 12, 10, 16, 3, 15, 2, 14, 2, 11, 0, 9, -1, 13, 1, 2, 0, 12, dagger, wristband, {})
                             player.add_to_inv(dagger, 1)
                             player.add_to_inv(wristband, 1)
-                            player.add_to_inv("lockpick", 1)
-                            ### create items for inv
-                            player.add_to_inv(f"forgery kit", 1)
-                            player.add_to_inv("dark cloak", 1)
+                            player.add_to_inv(rations, 2)
+                            player.add_to_inv(small_waterskin, 1)
                     
                         elif crime_index == 4: # falsely accused
                             player = Player(char_name, 10, 10, 10, 16, 3, 15, 2, 14, 2, 9, -1, 13, 1, 11, 0, 2, 0, 13, wrench, wristband, {})
                             player.add_to_inv(wrench, 1)
                             player.add_to_inv(wristband, 1)
-                            player.add_to_inv("portable device", 1)
-                            ### create items for inv
-                            player.add_to_inv("toolkit", 1)
-                            player.add_to_inv("spare parts", 4)
-                            player.add_to_inv("personal journal", 1)
+                            player.add_to_inv(rations, 2)
+                            player.add_to_inv(small_waterskin, 1)
 
                         return player
 
@@ -154,11 +120,6 @@ def choose_crime(): # choose crime/create player instance
             clear()
             continue
 
-def go_to_Earth(): 
-    taken_to_dropship(player)
-    get_to_dropship()
-    launching_dropship()
-    dropship_malfunction(player)
 def go_to_Polis():
     clear()
     print(f"As you approach the imposing gates of {bold}{yellow}Polis{end} a sense of wonder\nand trepidation washes over you.\nThe ancient city stands as a testament to resilience in\na world devastated by nuclear catastrophe.\n")
@@ -415,14 +376,14 @@ def go_to_Tondc(): ###
 def go_to_ShallowValley(): ###
     pass
 
-class NPC:
+class NPC: ### add to playerr module
     num_of_NPCs = 0
     def __init__ (self, name): ###CODE THIS, ADD MORE ATTRIBUTES
         self.name = name
 
         NPC.num_of_NPCs += 1
 
-class Enemy(): ### ADD CODE: any other attributes that become necessary (strength and dex)
+class Enemy(): ### add to playerr module: ADD CODE: any other attributes that become necessary (strength and dex)
     num_of_enemies = 0
     def __init__ (self, name, armor_class, strength, dex, currentHP, HP, dropItem, dropGP, equipped_weapon=None):
         self.name = name
@@ -458,7 +419,7 @@ while run:
         draw()
         choice = input("> ").strip().lower() # choice
         if choice in ['1', 'n', 'new', 'new game']: # new game
-            ###intro()
+            intro()
             player = choose_crime() # choose crime and return player object based on their choice
             
             if player is not None: 
@@ -499,5 +460,5 @@ while run:
 
     while play:
         player.save_game('load.json') # autosave
-        go_to_Earth()
+        go_to_Earth(player)
         go_to_Polis()
