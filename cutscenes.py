@@ -1,11 +1,5 @@
 import time as t
-from formatting import clear, enter
-
-# colors
-bold = "\033[1m"
-red = "\033[31m"
-cyan = "\033[36m"
-end = "\033[0m" # end any formatting
+from util import clear, enter, bold, red, cyan, end
 
 def intro(): # scene: get introduced to the game and choose your character
     clear()
