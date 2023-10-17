@@ -1,25 +1,4 @@
-# colors
-bold = "\033[1m"
-normal = "\x1b[0m" + "\x1b[38;2;255;255;255m"
-italic = "\033[3m"
-underline = "\033[4m"
-strike = "\033[9m" # strikethrough
-end = "\033[0m" # end any formatting
-gold = "\x1b[38;2;230;190;0m\x1b[1m"
-silver = "\x1b[38;2;221;221;221m\x1b[1m"
-copper = "\x1b[38;2;170;44;0m\x1b[1m"
-red = "\033[31m"
-orange = '\x1b[38;2;255;90;0m\x1b[1m'
-yellow = "\033[33m"
-green = "\033[32m"
-blue =  "\033[34m"
-lime = '\x1b[38;2;00;255;00m\x1b[1m'
-turquoise = '\x1b[38;2;0;255;255m\x1b[1m'
-teal = '\x1b[38;2;0;170;170m\x1b[1m'
-purple = "\033[35m"
-cyan = "\033[36m"
-white = "\033[37m"
-gray = "\033[1;30m"
+from util import red, end, bold, cyan, enter, green
 
 class Items:
     num_of_items = 0 # counting total in-game items
@@ -27,11 +6,23 @@ class Items:
         self.name = name
         self.desc = desc
         self.price = price
-        self.isConsumable = None
+        self.isConsumable = True
         self.isWeapon = None
         self.isTek = None
     
         Items.num_of_items += 1
+    
+    def consume(self, user):
+        if self.isConsumable == True: # if item is consumable
+            if self == rations: # if item is rations (only thing you eat)
+                print(f"{bold}{red}You scarf down the rations and relish in a warm belly.{end}")
+                user.remove_from_inv(self, 1)
+            else: 
+                print(f"{bold}{cyan}You gulp down the crisp {self.name}.{end}")
+                user.remove_from_inv(self, 1)
+        else:
+            print("This item is not consumable")
+        enter()
 
 class Weapons(Items):
     num_of_weapons = 0 # counting total in-game weapons 
@@ -86,7 +77,8 @@ class Tek(Items):
 # item objects
 rations = Items("1 days rations", "WRITE DESC", 5, True, False, False)
 small_waterskin = Items("small waterskin", "WRITE DESC", 2, True, False, False)
-items_all = [rations, small_waterskin]
+large_waterskin = Items("large waterskin", "WRITE DESC", 4, True, False, False)
+items_all = [rations, small_waterskin, large_waterskin]
 
 
 # weapon objects
@@ -106,7 +98,7 @@ weapons_all = [glaive, rapier, dagger, crossbow, butterfly_sword, reaper_stick, 
 weapons_for_sale = [glaive, rapier, dagger, crossbow, butterfly_sword, reaper_stick, reaper_cleaver, multipurpose_knife, throwing_knives, shortbow]
 
 # list of all potions
-health_potion = Potions('health potion', 'A glimmering green liquid', 3, True, False, False, "You ingest the green potion and gain 5 health")
+health_potion = Potions('health potion', 'A glimmering green liquid', 3, True, False, False, f"{green}You ingest the green potion and gain 5 health{end}")
 knowledge_potion = Potions('knowledge potion', 'A swirling pearl potion which helps you gain knowledge', 5, True, False, False, "You drink the potion and gain 15 XP")
 potions_all = [health_potion, knowledge_potion]
 
