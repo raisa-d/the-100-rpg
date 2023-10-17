@@ -1,6 +1,6 @@
 import time as t, pickle
-from formatting import clear, enter, draw, diceRoll, bold, red, end, white, cyan, purple, underline, orange, yellow, green, blue, lime, teal, turquoise, gold, copper
-from items import weapons_all, tek_all, potions_all, multipurpose_knife, wristband, rations, small_waterskin, throwing_knives, shiv, dagger, wrench, Potions, Weapons, Tek, Items
+from util import clear, enter, draw, diceRoll, bold, red, end, white, cyan, purple, underline, orange, yellow, green, blue, lime, teal, turquoise, gold, copper
+from items import weapons_all, tek_all, Potions, Weapons, Items, Tek
 from crime import crimes
 
 class Player:
@@ -62,9 +62,9 @@ class Player:
         if found_weapon:
             self.equipped_weapon = found_weapon
             print(f"{green}>>{found_weapon.name} equipped<<{end}")
-            t.sleep(0.5)
+            enter()
         else:
-            print(f"You don't have {selected_weapon} in your inventory.")
+            print(f"{red}You don't have {selected_weapon} in your inventory.{end}")
             enter()
 
     def equip_tek(self, selected_tek):
@@ -78,7 +78,7 @@ class Player:
         if found_tek:
             self.equipped_tek = found_tek
             print(f"{green}>>{found_tek.name} equipped<<{end}")
-            t.sleep(0.5)
+            enter()
         else:
             print(f"You don't have {selected_tek} in your inventory.")
             enter()
@@ -234,184 +234,84 @@ class Player:
         except Exception as e:
             print(f"{red}Error loading game: {str(e)}")
 
+def pretty_print(player): # just prints out the inventory pretty
+    clear()
+    print(f"{bold}{underline}{player.name}{end}")
+    print(f"\n{green}Health{end}: {player.HP}/{player.maxHP} 🩸") # printing health
+    print(f"{gold}Gold{end}: {player.gp}")
+    if player.equipped_weapon is not None:
+        print(f"\n{bold}Equipped Weapon:{end} {(player.equipped_weapon.name).title()}")
+    else:
+        print(f"\n{bold}Equipped Weapon:{end} {player.equipped_weapon}")
+        
+    if player.equipped_tek is not None:
+        print(f"{bold}Equipped Tek:{end} {player.equipped_tek.name.title()}\n")
+    else:
+        print(f"{bold}Equipped Tek:{end} {player.equipped_tek}\n")
+            
+    print(f"\n{bold}{purple}Inventory:\n{end}")
+        
+    draw()
+    counter = 1
+    for item, quantity in player.inv.items(): # print inventory
+        if isinstance(item, Items):
+            print(f"{purple}{counter}.{white} ", *item.name.title(), f" x {quantity}", sep = "", end = "\n")
+        counter += 1
+    draw()
+
 def print_inventory(player, potions_all, weapons_all, tek_all):
     while True:
-        clear()
-        print(f"{bold}{underline}{player.name}{end}")
-        print(f"\n{green}Health{end}: {player.HP}/{player.maxHP} 🩸") # printing health
-        print(f"{gold}Gold{end}: {player.gp}")
-        if player.equipped_weapon is not None:
-            print(f"\n{bold}Equipped Weapon:{end} {(player.equipped_weapon.name).title()}")
-        else:
-            print(f"\n{bold}Equipped Weapon:{end} {player.equipped_weapon}")
-        
-        if player.equipped_tek is not None:
-            print(f"{bold}Equipped Tek:{end} {player.equipped_tek.name.title()}\n")
-        else:
-            print(f"{bold}Equipped Tek:{end} {player.equipped_tek}\n")
-            
-        print(f"\n{bold}{purple}Inventory:\n{end}")
-        
-        draw()
-        counter = 1
-        for item, quantity in player.inv.items(): # print inventory
-            if isinstance(item, Items):
-                print(f"{purple}{counter}.{white} ", *item.name.title(), f" x {quantity}", sep = "", end = "\n")
-            counter += 1
-        draw()
+        pretty_print(player)
 
         # inventory choices
         print(f"\n[{cyan}{bold}l{end}] to leave")
-        choice = input("> ").strip().lower()
+        choice = input("> ").strip().lower() # user input
+        
         if choice in ['l', 'leave', 'x', 'exit']: # leave
             break
+        
         elif choice.isdigit():
             item_index = int(choice) - 1 # converting choice into an index of the inventory
             if 0 <= item_index <len(player.inv): # check whether item_index is in valid range of indices for inventory
                 selected_item = list(player.inv.keys())[item_index] # assigning selected_item to item in inventory
                 
-                for potion in potions_all: # if potion
-                    if selected_item == potion: 
-                        while True:
-                            print(f"\n{selected_item.name.title()}\nWhat would you like to do?\n| Sell | Exit | Use | Desc")
-                            option = input("\n> ").strip().lower()
-                            if option in ['s', 'sell']: # sell
-                                player.remove_from_inv(selected_item, 1)
-                                print(f"{gold}>> {selected_item.name} sold for {selected_item.price} gp <<{end}")
-                                player.gp += selected_item.price
-                                enter()
+                for i in player.inv: # go through inventory line by line
+                    if selected_item == i: # find selected item in list
+                        print(f"\n{bold}{selected_item.name.title()}{end}\nWhat would you like to do?\n| Back | Sell | Equip/Use | Desc")
+                        option = input("\n> ").strip().lower()
+
+                        if option in ['x', 'exit', 'b', 'back', 'l', 'leave']: # exit
                                 break
-                            elif option in ['x', 'exit']: # exit
-                                break
-                            elif option in ['u', 'use', 'equip', 'e']: # use
-                                selected_item = potion
+
+                        elif option in ['s', 'sell']: # sell
+                            player.remove_from_inv(selected_item, 1)
+                            print(f"{gold}>> {selected_item.name} sold for {selected_item.price} gp <<{end}")
+                            player.gp += selected_item.price
+                            enter()
+                            break
+
+                        elif option in ['u', 'use', 'equip', 'e']: # use/equip item
+                            if isinstance(selected_item, Potions): # if it's a potion
                                 selected_item.drinkPotion(player)
                                 enter()
                                 break
-                            elif option in ['d', 'desc', 'description']: # description
-                                selected_item = potion
-                                print(selected_item.desc)
-                                enter()
-                                break
-                            else:
-                                print(f"{red}Invalid{end} Command\n\n{green}Valid{end} Commands:\n['s', 'sell'\n'x', 'exit'\n'u', 'use', 'equip', 'e',\n'd', 'desc', 'description']")
-                                enter()
-
-                for weapon in weapons_all: # if weapon
-                    if selected_item == weapon: 
-                        while True:
-                            print(f"\n{selected_item.name.title()}\nWhat would you like to do?\n| Sell | Exit | Equip | Desc")
-                            option = input("\n> ").strip().lower()
-                            if option in ['s', 'sell']: # sell
-                                player.remove_from_inv(selected_item, 1)
-                                print(f"{gold}>> {selected_item.name} sold for {selected_item.price} gp <<{end}")
-                                player.gp += selected_item.price
-                                if selected_item == player.equipped_weapon:
-                                    player.equipped_weapon = None
-                                enter()
-                                break
-                            elif option in ['x', 'exit']: # exit
-                                break
-                            elif option in ['e', 'equip', 'u', 'use']: # equip
-                                selected_item = weapon
+                            elif isinstance(selected_item, Weapons): # if it's a weapon
                                 player.equip_weapon(selected_item)
                                 break
-                            elif option in ['d', 'desc', 'description']: # description
-                                selected_item = weapon
-                                print(selected_item.desc)
-                                enter()
-                                break
-                            else:
-                                print(f"{red}Invalid{end} Command\n\n{green}Valid{end} Commands:\n['s', 'sell'\n'x', 'exit'\n'e', 'equip', 'u', 'use'\n'd', 'desc', 'description']")
-                                enter()
-                                continue
-                
-                for tek in tek_all: # if tek
-                    if selected_item == tek:
-                        while True:
-                            print(f"\n{selected_item.name.title()}\nWhat would you like to do?\n| Sell | Exit | Equip | Use | Desc")
-                            option = input("\n> ").strip().lower()
-                            if option in ['s', 'sell']: # sell
-                                player.remove_from_inv(selected_item, 1)
-                                print(f"{gold}>> {selected_item.name} sold for {selected_item.price} gp <<{end}")
-                                player.gp += selected_item.price
-                                if selected_item == player.equipped_weapon:
-                                    player.equipped_weapon = None
-                                enter()
-                                break
-                            elif option in ['x', 'exit']: # exit
-                                break
-                            elif option in ['e', 'equip']: # equip
-                                selected_item = tek
+                            elif isinstance(selected_item, Tek): # if it's tek
                                 player.equip_tek(selected_item)
                                 break
-                            elif option in ['u', 'use']: # use item against another
-                                selected_item.useTek(player) ### CODE the useTek function
-                                enter()
+                            else: # if its rations/water
+                                selected_item.consume(player)
                                 break
-                            elif option in ['d', 'desc', 'description']: # description
-                                selected_item = tek
+                        
+                        elif option in ['d', 'desc', 'description']: # description
                                 print(selected_item.desc)
                                 enter()
                                 break
-                            else:
-                                print(f"{red}Invalid{end} Command\n\n{green}Valid{end} Commands:\n['s', 'sell',\n'x', 'exit',\n'e', 'equip', 'u', 'use',\n'd', 'desc', 'description']")
-                                enter()
-                                continue
-        
-                for i in player.inv:
-                    if isinstance(selected_item, str):
-                        if selected_item == "1 days rations":
-                            print(f"\n{selected_item.title()}\nWhat would you like to do?\n| Exit | Eat |")
-                            option = input('\n> ').strip().lower()
-                            if option in ['exit', 'x', 'l', 'leave']:
-                                break
-                            elif option in ['eat', 'e']:
-                                print(f'{orange}You eat your rations and relish in the feeling of a full belly.{end}') ### Implement actualy eating functionality
-                                player.remove_from_inv("1 days rations", 1)
-                                enter()
-                                break
-                            else:
-                                print(f"{bold}{red}Invalid command.\n{green}Valid commands:{end}\n['exit', 'x', 'l', 'leave'\n'eat', 'e'")
-                                enter()
-                        
-                        elif selected_item == "small waterskin":
-                            option = input(f"\n{selected_item.title()}\nWhat would you like to do?\n| Exit | Drink |\n\n> ")
-                            if option in ['drink', 'd']:
-                                print(f"{cyan}You drink the crisp water{end}")
-                                player.remove_from_inv("small waterskin", 1) 
-                                enter()
-                                break
-                            elif option in ['x', 'exit', 'l', 'leave']:
-                                break
-                            else:
-                                print(f"{bold}{red}Invalid command.\n{green}Valid commands:{end}\n['x', 'exit', 'l', 'leave'\n'drink', 'd'")
-                                enter()
-                                continue
-
-                        elif selected_item == "lockpick":
-                            option = input(f"\n{selected_item.title()}\nWhat would you like to do?\n| Exit | Desc \n\n> ") ### add ability to use it in certain situations?
-                            if option in ['x', 'exit', 'l', 'leave']:
-                                break
-                            elif option in ['desc', 'd', 'description']:
-                                print('A slender, specialized tool crafted for manipulating the\n internal components of locks, enabling skilled individuals\nto covertly and skillfully open secured doors or containers.')
-                                enter()
-                                break
-                            else:
-                                print(f"{bold}{red}Invalid command.\n{green}Valid commands:{end}\n['x', 'exit', 'l', 'leave'\n'desc', 'd', 'description'")
-                                enter()
-                                continue
-                        
-                        elif selected_item == "portable device":
-                            option = input(f"\n{selected_item.title()}\nWhat would you like to do?\n| Exit | Desc \n\n> ") ### add ability to use it in certain situations?
-                            if option in ['x', 'exit', 'l', 'leave']:
-                                break
-                            elif option in ['desc', 'd', 'description']:
-                                print('Portable device for analysing and diagnosing technical issues')
-                            else:
-                                print(f"{bold}{red}Invalid command.\n{green}Valid commands:{end}\n['x', 'exit', 'l', 'leave'\n'desc', 'd', 'description'")
-                                enter()
-                                continue
+                        else:
+                            print(f"{red}Invalid{end} Command\n\n{green}Valid{end} Commands:\n['s', 'sell'\n'x', 'exit', 'b', 'back', 'l', 'leave'\n'u', 'use', 'equip', 'e',\n'd', 'desc', 'description']")
+                            enter()
 
         else:
             print(f"{bold}{red}Invalid command.\n{green}Valid commands:{white}\n['l', 'leave', 'x', 'exit'\nor the corresponding number to the inventory item you want to select]{end}")
