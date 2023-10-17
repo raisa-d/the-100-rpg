@@ -1,14 +1,8 @@
 import time as t
-from formatting import clear, enter, draw, diceRoll
+from util import clear, enter, diceRoll, bold, red, white, green, orange, end
 from items import multipurpose_knife, throwing_knives, shiv, dagger, wrench
 from minigames import code_decryption_minigame
-
-bold = "\033[1m"
-red = "\033[31m"
-white = "\033[37m"
-green = "\033[32m"
-orange = '\x1b[38;2;255;90;0m\x1b[1m'
-end = "\033[0m" # end any formatting
+from cutscenes import get_to_dropship, launching_dropship
 
 def taken_to_dropship(player):
     while True: 
@@ -104,3 +98,9 @@ def dropship_malfunction(player):
             enter()
             clear()
             continue
+
+def go_to_Earth(player): 
+    taken_to_dropship(player)
+    get_to_dropship()
+    launching_dropship()
+    dropship_malfunction(player)
