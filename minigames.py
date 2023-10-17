@@ -1,5 +1,5 @@
 import random as r
-from formatting import clear, enter, draw
+from util import clear, enter, draw
 
 # colors
 orange = '\x1b[38;2;255;90;0m\x1b[1m'
