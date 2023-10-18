@@ -6,8 +6,8 @@ from crime import crimes
 from util import clear, enter, draw, red, underline, bold, end, white, yellow, green, cyan, gold, blue, copper, purple, orange, gray
 from cutscenes import intro, get_to_dropship, launching_dropship
 from events import go_to_Earth
-from items import Weapons, Potions, Tek, Items, glaive, rapier, dagger, crossbow, butterfly_sword, reaper_stick, reaper_cleaver, multipurpose_knife, throwing_knives, shiv, wrench, shortbow
-from items import health_potion, knowledge_potion, wristband, gas_mask, the_fleim, knockout_gas, rations, small_waterskin, weapons_all, weapons_for_sale, tek_all, tek_for_sale, potions_all
+from items import rapier, dagger, crossbow, butterfly_sword, reaper_stick, multipurpose_knife, throwing_knives, shiv, wrench
+from items import wristband, the_fleim, knockout_gas, rations, small_waterskin, weapons_for_sale, tek_for_sale, potions_all
 from playerr import print_inventory, Player
 
 # default booleans
@@ -136,7 +136,7 @@ def go_to_Polis():
             print("Goodbye!")
             quit()
         if action in ['i', 'inv', 'inventory']: # inventory
-            print_inventory(player, potions_all, weapons_all, tek_all)
+            print_inventory(player)
         elif action == "save": # save
             player.save_game('load.json') # autosave
         elif action in ['s', 'stats']: # stats
@@ -419,7 +419,7 @@ while run:
         draw()
         choice = input("> ").strip().lower() # choice
         if choice in ['1', 'n', 'new', 'new game']: # new game
-            intro()
+            ###intro()
             player = choose_crime() # choose crime and return player object based on their choice
             
             if player is not None: 
@@ -460,5 +460,5 @@ while run:
 
     while play:
         player.save_game('load.json') # autosave
-        go_to_Earth(player)
+        #go_to_Earth(player)
         go_to_Polis()
