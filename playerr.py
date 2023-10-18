@@ -1,6 +1,6 @@
 import time as t, pickle
 from util import clear, enter, draw, diceRoll, bold, red, end, white, cyan, purple, underline, orange, yellow, green, blue, lime, teal, turquoise, gold, copper
-from items import weapons_all, tek_all, Potions, Weapons, Items, Tek
+from items import weapons_all, tek_all, Potion, Weapon, Item, Tek, Food, Drink
 from crime import crimes
 
 class Player:
@@ -254,12 +254,12 @@ def pretty_print(player): # just prints out the inventory pretty
     draw()
     counter = 1
     for item, quantity in player.inv.items(): # print inventory
-        if isinstance(item, Items):
+        if isinstance(item, Item):
             print(f"{purple}{counter}.{white} ", *item.name.title(), f" x {quantity}", sep = "", end = "\n")
         counter += 1
     draw()
 
-def print_inventory(player, potions_all, weapons_all, tek_all):
+def print_inventory(player):
     while True:
         pretty_print(player)
 
@@ -277,7 +277,14 @@ def print_inventory(player, potions_all, weapons_all, tek_all):
                 
                 for i in player.inv: # go through inventory line by line
                     if selected_item == i: # find selected item in list
-                        print(f"\n{bold}{selected_item.name.title()}{end}\nWhat would you like to do?\n| Back | Sell | Equip/Use | Desc")
+                        print(f"\n{bold}{selected_item.name.title()}{end}\nWhat would you like to do?")
+                        if isinstance(selected_item, Food):
+                                print("| Back | Sell | Eat | Desc")
+                        elif isinstance(selected_item, Drink) or isinstance(selected_item, Potion):
+                                print("| Back | Sell | Drink | Desc")
+                        else:
+                            print("| Back | Sell | Equip | Desc")
+                        
                         option = input("\n> ").strip().lower()
 
                         if option in ['x', 'exit', 'b', 'back', 'l', 'leave']: # exit
@@ -290,27 +297,30 @@ def print_inventory(player, potions_all, weapons_all, tek_all):
                             enter()
                             break
 
-                        elif option in ['u', 'use', 'equip', 'e']: # use/equip item
-                            if isinstance(selected_item, Potions): # if it's a potion
+                        elif option in ['u', 'use', 'equip', 'e', 'eat', 'd', 'drink']: # use/equip item
+                            if isinstance(selected_item, Potion): # if it's a potion
                                 selected_item.drinkPotion(player)
                                 enter()
                                 break
-                            elif isinstance(selected_item, Weapons): # if it's a weapon
+                            elif isinstance(selected_item, Weapon): # if it's a weapon
                                 player.equip_weapon(selected_item)
                                 break
                             elif isinstance(selected_item, Tek): # if it's tek
                                 player.equip_tek(selected_item)
                                 break
-                            else: # if its rations/water
-                                selected_item.consume(player)
+                            elif isinstance(selected_item, Food): # if its rations/water
+                                selected_item.eat(player) ###not working nr
+                                break
+                            elif isinstance(selected_item, Drink):
+                                selected_item.drink(player)
                                 break
                         
-                        elif option in ['d', 'desc', 'description']: # description
+                        elif option in ['desc', 'description']: # description
                                 print(selected_item.desc)
                                 enter()
                                 break
                         else:
-                            print(f"{red}Invalid{end} Command\n\n{green}Valid{end} Commands:\n['s', 'sell'\n'x', 'exit', 'b', 'back', 'l', 'leave'\n'u', 'use', 'equip', 'e',\n'd', 'desc', 'description']")
+                            print(f"{red}Invalid{end} Command\n\n{green}Valid{end} Commands:\n['s', 'sell'\n'x', 'exit', 'b', 'back', 'l', 'leave'\n'u', 'use', 'equip', 'e', 'eat', 'd', 'drink'\n'desc', 'description']")
                             enter()
 
         else:
