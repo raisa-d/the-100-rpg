@@ -1,7 +1,6 @@
 import time as t, pickle
 from util import clear, enter, draw, diceRoll, bold, red, end, white, cyan, purple, underline, orange, yellow, green, blue, lime, teal, turquoise, gold, copper
 from items import weapons_all, tek_all, Potion, Weapon, Item, Tek, Food, Drink
-from crime import crimes
 
 class Player:
     def __init__(self, name, HP, maxHP, gp, str_ability, str_mod, dex_ability, dex_mod, const_ability, const_mod, int_ability, int_mod, wis_ability, wis_mod, char_ability, char_mod, prof_bonus, xp, AC, equipped_weapon=None, equipped_tek=None, inv=None):
@@ -54,8 +53,8 @@ class Player:
     def equip_weapon(self, selected_weapon):
         found_weapon = None
 
-        for weapon in weapons_all:
-            if weapon == selected_weapon:
+        for weapon in weapons_all:  # if they choose a weapon that is in the weapons_all list
+            if weapon.name == selected_weapon.name: 
                 found_weapon = weapon
                 break
         
@@ -64,14 +63,14 @@ class Player:
             print(f"{green}>>{found_weapon.name} equipped<<{end}")
             enter()
         else:
-            print(f"{red}You don't have {selected_weapon} in your inventory.{end}")
+            print(f"{red}You don't have {selected_weapon.name} in your inventory.{end}")
             enter()
 
     def equip_tek(self, selected_tek):
         found_tek = None
 
         for tek in tek_all:
-            if tek == selected_tek:
+            if tek.name == selected_tek.name:
                 found_tek = tek
                 break
         
@@ -80,7 +79,7 @@ class Player:
             print(f"{green}>>{found_tek.name} equipped<<{end}")
             enter()
         else:
-            print(f"You don't have {selected_tek} in your inventory.")
+            print(f"You don't have {selected_tek.name} in your inventory.")
             enter()
 
     def battle(self, target): 
@@ -212,7 +211,7 @@ class Player:
         print(f"{purple}Charisma{white}     | {self.char_ability} | {self.char_mod}")
         enter()
 
-    def save_game(self, filename):
+    def save_game(self, filename): # writing self to a file 
         try:
             with open(filename, "wb") as file:
                 pickle.dump(self, file)
@@ -225,9 +224,9 @@ class Player:
     def load_game(filename): ### FIX: There is a problem when loading from a new game, doesn't recognize self
         try:
             with open(filename, "rb") as file:
-                self = pickle.load(file)
+                loaded_player = pickle.load(file)
             print(f'{green}>>loaded successfully<<{end}')
-            return self
+            return loaded_player
         except FileNotFoundError:
             print(">>no saved game found<<")
             return None
