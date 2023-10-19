@@ -1,10 +1,10 @@
-## The 100 RPG Game 
+## The 100 RPG
 ## Making classes for player, NPCs, weapons, potions  ##
 
 import random as r, time as t
 from crime import crimes
 from util import clear, enter, draw, red, underline, bold, end, white, yellow, green, cyan, gold, blue, copper, purple, orange, gray
-from cutscenes import intro, get_to_dropship, launching_dropship
+from cutscenes import intro
 from events import go_to_Earth
 from items import rapier, dagger, crossbow, butterfly_sword, reaper_stick, multipurpose_knife, throwing_knives, shiv, wrench
 from items import wristband, the_fleim, knockout_gas, rations, small_waterskin, weapons_for_sale, tek_for_sale, potions_all
@@ -419,7 +419,8 @@ while run:
         draw()
         choice = input("> ").strip().lower() # choice
         if choice in ['1', 'n', 'new', 'new game']: # new game
-            ###intro()
+            intro()
+            go_to_Earth(player)
             player = choose_crime() # choose crime and return player object based on their choice
             
             if player is not None: 
@@ -460,5 +461,4 @@ while run:
 
     while play:
         player.save_game('load.json') # autosave
-        #go_to_Earth(player)
         go_to_Polis()
