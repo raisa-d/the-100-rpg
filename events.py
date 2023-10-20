@@ -3,8 +3,9 @@ from util import clear, enter, diceRoll, bold, red, white, green, orange, end
 from items import multipurpose_knife, throwing_knives, shiv, dagger, wrench
 from minigames import code_decryption_minigame
 from cutscenes import get_to_dropship, launching_dropship
+from skill_checks import intelligence_check
 
-def taken_to_dropship(player):
+def taken_to_dropship(user):
     while True: 
         clear()
         print('Guards suddenly rush into your cell and bark at you, "Let\'s go!"\nThey take you by your arm and drag you down the Ark corridors.')
@@ -14,23 +15,23 @@ def taken_to_dropship(player):
         if speak_up == "a": # if ask where they're taking you
             print(f'{bold}The guard shoots you a menacing expression and grunts at you.')
             t.sleep(1)
-            if multipurpose_knife in player.inv: # if crime was stealing vital stuff -- people don't trust you
+            if multipurpose_knife in user.inv: # if crime was stealing vital stuff -- people don't trust you
                 print(f'\nYou make eye contact with the prisoner to your left and try to\nnonverbally communicate "What the **** is going on?"\n\nThe prisoner gives you some side-eye.{end}')
                 enter()
                 break
-            elif throwing_knives in player.inv: # if crime: leading a rebellion
+            elif throwing_knives in user.inv: # if crime: leading a rebellion
                 print(f'\nYou exchange a glance with another prisoner, who mouths to you\nin a panic: "They\'re sending us...down.{end}"') ### this NPC was arrested for treason? define who these prisoners are
                 enter()
                 break
-            elif shiv in player.inv: # if crime: cannabis thievery
+            elif shiv in user.inv: # if crime: cannabis thievery
                 print(f'\nYou realize you\'re still a little bit baked from smoking\nthe last of the stash you had hidden in the air ducts in your cell.\n\nYou begin to realize you have no clue what\'s going on.{end}') ### 
                 enter()
                 break
-            elif dagger in player.inv: # if crime: 2nd child
+            elif dagger in user.inv: # if crime: 2nd child
                 print(f'\nAnother prisoner tries to get your attention\nand has a panicked look on their face.{end}') ###
                 enter()
                 break
-            elif wrench in player.inv: # if crime: falsely accused
+            elif wrench in user.inv: # if crime: falsely accused
                 print(f'\nYou look to your right and see a prisoner nearby\nstruggling to get out of a guard\'s grasp{end}')
                 enter()
                 break
@@ -45,40 +46,28 @@ def taken_to_dropship(player):
             continue
 
 # dropship malfunction
-def dropship_malfunction(player): 
+def dropship_malfunction(user): 
     print(f"\n{bold}Suddenly, the descent turns into a {red}chaotic freefall.{white} The dropship\nshakes aggressively and you all try to grip anything stable. The\nengine becomes very loud, intesifying the feeling of {orange}imminent\ndanger{white} and helplessness.{end}")
     t.sleep(1)
     while True:
         print("\nDo you...\na) attempt to fix the issue or\nb) brace for impact?")
         fix_or_brace = input("> ").strip().lower()
-        dmg_identified = False
+
         if fix_or_brace in ['a', 'fix', 'fix the issue', 'f']:
             clear()
             
-            # assess malfunction
-            if "portable device" in player.inv:
-                print("\nYou use your device and successfully identify a damaged component in the dropship\'s propulsion system")
+            # investigation skill check
+            print(f"\n{user.name} will use an investigation skill check to assess the malfunction")
+            passed = intelligence_check(user, 8) # will return True or False about whether passed the skill check or not
+            if passed:
+                print("\nYou have successfully identified a damaged component in the dropship's propulsion system.")
                 enter()
-                dmg_identified = True
-            else: # investigation skill check
-                print(f"\n{player.name} will use an investigation skill check to assess the malfunction")
-                t.sleep(1)
-                print("\nRolling d20 and adding your intelligence modifier...")
-                t.sleep(1)
-                inv_check = diceRoll(20) + player.int_mod
-                print(f"\nYou got {inv_check}")
-                t.sleep(1)
-                if inv_check > 8: # chose 6 as difficulty class for this task, don't want it to be unattainable but not too easy either
-                    print("\nYou have successfully identified a damaged component in the dropship's propulsion system.")
-                    dmg_identified = True
-                    enter()
-                else:
-                    print("\nYou were unsuccessful and did not figure out the source of the malfunction.\n--> CONSEQUENCES") ### code consequences of failing to do this
-                    dmg_identified = False
-                    enter()
-                    break
+            else:
+                print("\nYou were unsuccessful and did not figure out the source of the malfunction.\n--> CONSEQUENCES") ### code consequences of failing to do this
+                enter()
+                break
         
-            while dmg_identified is True: # if you successfully assess damage, move onto code decryption minigame to fix it
+            while passed: # if you pass ability check/successfully assess damage, move onto code decryption minigame to fix it
                 fixed = code_decryption_minigame()
                 if fixed is True: #if they were successful
                     print("You successfully fixed the propulsion system!\n--> REWARDS") ### code rewards, what happens (spaceship steadies, safe landing, etc.)
@@ -99,8 +88,8 @@ def dropship_malfunction(player):
             clear()
             continue
 
-def go_to_Earth(player): 
-    taken_to_dropship(player)
+def go_to_Earth(user): 
+    taken_to_dropship(user)
     get_to_dropship()
     launching_dropship()
-    dropship_malfunction(player)
+    dropship_malfunction(user)
