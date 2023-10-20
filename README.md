@@ -50,7 +50,7 @@ To get started, follow these steps:
 
 ## Bugs
 
-Currently, there is one known bugs: 
+Currently, there is one known bug: 
 1. os.system("clear") does not work on Windows-- for Windows, it would need to be os.system("cls")
 
 The development team is working to resolve these issues.
