@@ -1,19 +1,25 @@
-import time as t, pickle
+import time as t, pickle, random as r
 from util import clear, enter, draw, diceRoll, bold, red, end, white, cyan, purple, underline, orange, yellow, green, blue, lime, teal, turquoise, gold, copper
-from items import weapons_all, tek_all, Potion, Weapon, Item, Tek, Food, Drink
+from items import weapons_all, tek_all, Potion, Weapon, Item, Tek, Food, Drink, reaper_stick, dagger, butterfly_sword, rapier, knockout_gas, crossbow
 
-class Player:
-    def __init__(self, name, HP, maxHP, gp, str_ability, str_mod, dex_ability, dex_mod, const_ability, const_mod, int_ability, int_mod, wis_ability, wis_mod, char_ability, char_mod, prof_bonus, xp, AC, equipped_weapon=None, equipped_tek=None, inv=None):
+class Character():
+    def __init__(self, name, HP, maxHP, AC, str_mod, dex_mod, equipped_weapon=None):
         self.name = name
         self.HP = HP
         self.maxHP = maxHP
+        self.AC = AC
+        self.str_mod = str_mod
+        self.dex_mod = dex_mod
+        self.equipped_weapon = equipped_weapon
+
+class Player(Character):
+    def __init__(self, name, HP, maxHP, gp, str_ability, str_mod, dex_ability, dex_mod, const_ability, const_mod, int_ability, int_mod, wis_ability, wis_mod, char_ability, char_mod, prof_bonus, xp, AC, equipped_weapon=None, equipped_tek=None, inv=None):
+        super().__init__(name, HP, maxHP, AC, str_mod, dex_mod, equipped_weapon)
         self.gp = gp
 
         # D&D ability scores/modifiers
-        self.str_ability = str_ability # strength
-        self.str_mod = str_mod
-        self.dex_ability = dex_ability # dexterity
-        self.dex_mod = dex_mod
+        self.str_ability = str_ability # strength ability score
+        self.dex_ability = dex_ability # dexterity ability score
         self.const_ability = const_ability # constitution
         self.const_mod = const_mod
         self.int_ability = int_ability # intelligence
@@ -25,8 +31,6 @@ class Player:
         self.prof_bonus = prof_bonus # proficiency bonus
         
         self.xp = xp
-        self.AC = AC
-        self.equipped_weapon = equipped_weapon
         self.equipped_tek = equipped_tek
         if inv is None: # doing this so we don't have a mutable list set as the default
             self.inv = {}
@@ -81,6 +85,27 @@ class Player:
         else:
             print(f"You don't have {selected_tek.name} in your inventory.")
             enter()
+
+    def unequip(self, selected_item):
+        if isinstance(selected_item, Weapon): # if it is a Weapon
+            if self.equipped_weapon is not None: # checking that there is a weapon equipped
+                if selected_item.name == self.equipped_weapon.name: # if you chose the equipped weapon
+                    self.equipped_weapon = None # set equipped_weapon to None
+                    print(f"\n{bold}{green}>> Unequipped {selected_item.name.title()} <<{end}") # print that it's been unequipped
+                else: # if you chose a weapon that isn't the equipped weapon
+                    print(f"{red}{bold}You do not have your {selected_item.name} equipped right now.{end}")
+            else: # if there is no weapon equipped
+                print(f"{red}{bold}You have no weapon equipped right now.{end}") 
+        
+        elif isinstance(selected_item, Tek): # if choose Tek
+            if self.equipped_tek is not None: # checking that there is a weapon equipped
+                if selected_item.name == self.equipped_tek.name: # if you chose the equipped weapon
+                    self.equipped_tek = None # set equipped_tek to None
+                    print(f"\n{bold}{green}>> Unequipped {selected_item.name.title()} <<{end}") # print that it's been unequipped
+                else: # if you chose a weapon that isn't the equipped tek
+                    print(f"{red}{bold}You do not have your {selected_item.name} equipped right now.{end}")
+            else: # if there is no tek equipped
+                print(f"{red}{bold}You have no tek equipped right now.{end}") 
 
     def battle(self, target): 
         round = 1
@@ -233,6 +258,22 @@ class Player:
         except Exception as e:
             print(f"{red}Error loading game: {str(e)}")
 
+class Enemy(Character): 
+    def __init__ (self, name, HP, maxHP, AC, str_mod, dex_mod, drop_item, drop_GP, equipped_weapon=None):
+        super().__init__(name, HP, maxHP, AC, str_mod, dex_mod, equipped_weapon)
+        self.drop_item = drop_item
+        self.drop_GP = drop_GP
+
+# enemy objects
+### THINK ABOUT adding these attributes to Enemy: list of different attack options, 4 options for damage they can do to player (either damage can be randomly chosen or we give them str/dex modifiers for it), death (a unique string for how each enemy dies)
+reaper = Enemy('reaper', 15, 15, 12, 1, 1, reaper_stick, 3, dagger)
+azgeda = Enemy('azgeda warrior', 10, 10, 10, 1, 1, butterfly_sword, 5, rapier)
+mountain_man = Enemy('mountain man', 18, 18, 15, 2, 2, knockout_gas, 10, crossbow)
+
+random_enemy_list = [reaper, azgeda] # list of enemies that randomly spawn
+random_enemy = r.choice(random_enemy_list) 
+enemies_all = [reaper, azgeda, mountain_man]
+
 def pretty_print(player): # just prints out the inventory pretty
     clear()
     print(f"{bold}{underline}{player.name}{end}")
@@ -282,7 +323,7 @@ def print_inventory(player):
                         elif isinstance(selected_item, Drink) or isinstance(selected_item, Potion):
                                 print("| Back | Sell | Drink | Desc")
                         else:
-                            print("| Back | Sell | Equip | Desc")
+                            print("| Back | Sell | Equip | Unequip | Desc")
                         
                         option = input("\n> ").strip().lower()
 
@@ -296,7 +337,7 @@ def print_inventory(player):
                             enter()
                             break
 
-                        elif option in ['u', 'use', 'equip', 'e', 'eat', 'd', 'drink']: # use/equip item
+                        elif option in ['equip', 'e', 'eat', 'drink']: # use/equip item
                             if isinstance(selected_item, Potion): # if it's a potion
                                 selected_item.drinkPotion(player)
                                 enter()
@@ -307,19 +348,27 @@ def print_inventory(player):
                             elif isinstance(selected_item, Tek): # if it's tek
                                 player.equip_tek(selected_item)
                                 break
-                            elif isinstance(selected_item, Food): # if its rations/water
-                                selected_item.eat(player) ###not working nr
+                            elif isinstance(selected_item, Food): # if its food
+                                selected_item.eat(player)
                                 break
-                            elif isinstance(selected_item, Drink):
-                                selected_item.drink(player)
+                            elif isinstance(selected_item, Drink): # if its a drink
+                                selected_item.drink()
                                 break
                         
-                        elif option in ['desc', 'description']: # description
+                        elif option in ['u', 'unequip']:
+                            try:
+                                player.unequip(selected_item) # unequip Tek
+                                enter()
+                            except:
+                                print("NOT WORKING")
+                                enter()
+                        
+                        elif option in ['d', 'desc', 'description']: # description
                                 print(selected_item.desc)
                                 enter()
                                 break
                         else:
-                            print(f"{red}Invalid{end} Command\n\n{green}Valid{end} Commands:\n['s', 'sell'\n'x', 'exit', 'b', 'back', 'l', 'leave'\n'u', 'use', 'equip', 'e', 'eat', 'd', 'drink'\n'desc', 'description']")
+                            print(f"{red}{bold}Invalid Command.\n{green}Valid Commands:\n{white}['s', 'sell'\n'x', 'exit', 'b', 'back', 'l', 'leave'\n'equip', 'e', 'eat', 'drink'\n'd', 'desc', 'description']{end}")
                             enter()
 
         else:
