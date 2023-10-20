@@ -42,6 +42,7 @@ def code_decryption_minigame():
 
         if player_guess in symbols_picked: # if you already picked that symbol
             print(f'You\'ve already guessed symbol {player_guess}')
+            lives -= 1
             enter()
             continue
         symbols_picked.append(player_guess) # add symbol to list
@@ -60,6 +61,8 @@ def code_decryption_minigame():
             enter()
 
         if lives <= 0:
-            print("\nYou failed to unlock the controls. The alarm blares.")
+            clear()
+            print(f"{minigame_title:>110}")
+            print(f"{orange}\nYou failed to unlock the controls. The alarm blares.{end}")
             enter()
             return False
