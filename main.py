@@ -1,14 +1,13 @@
 ## The 100 RPG
-## Making classes for player, NPCs, weapons, potions  ##
 
 import random as r, time as t
 from crime import crimes
 from util import clear, enter, draw, red, underline, bold, end, white, yellow, green, cyan, gold, blue, copper, purple, orange, gray
 from cutscenes import intro
 from events import go_to_Earth
-from items import rapier, dagger, crossbow, butterfly_sword, reaper_stick, multipurpose_knife, throwing_knives, shiv, wrench
-from items import wristband, the_fleim, knockout_gas, rations, small_waterskin, weapons_for_sale, tek_for_sale, potions_all
-from playerr import print_inventory, Player
+from items import rapier, dagger, multipurpose_knife, throwing_knives, shiv, wrench
+from items import wristband, the_fleim, rations, small_waterskin, weapons_for_sale, tek_for_sale, potions_all
+from characters import print_inventory, Player, azgeda
 
 # default booleans
 run = True # game is running
@@ -37,7 +36,7 @@ def choose_crime(): # choose crime/create player instance
         draw()
         crime = input("\n> ").strip().lower()
         
-        if crime.isdigit() and 0 <= int(crime) <= len(crimes):
+        if crime.isdigit() and 1 <= int(crime) <= len(crimes):
             crime_index = int(crime) - 1 # converting answer into index
             crime_choice = crimes[str(crime_index)]
             print(f"{bold}{crime_choice['title']}{end}")
@@ -132,13 +131,13 @@ def go_to_Polis():
         print(f"{bold}Exit | {gold}Inv {white}| {red}Save {white}| {blue}Stats {white}| {copper}Marketplace{white} | {green}Converse {white}|{end}")
         action = input("> ").strip().lower()
         if action in ['x', 'exit']: # exit
-            player.save_game('load.json') # autosave
+            player.save_game('load.json') # save before exiting game
             print("Goodbye!")
             quit()
         if action in ['i', 'inv', 'inventory']: # inventory
             print_inventory(player)
         elif action == "save": # save
-            player.save_game('load.json') # autosave
+            player.save_game('load.json') # save game
         elif action in ['s', 'stats']: # stats
             player.print_stats()
         elif action in ['m', 'marketplace', 'market', 'store']: # marketplace
@@ -200,7 +199,6 @@ def go_to_MtWeather(): ###
 def go_to_TrikruWoods(): ###
     pass
 def go_to_Market(): 
-    global in_Marketplace
     in_Marketplace = True
     while in_Marketplace:
         clear()
@@ -241,7 +239,6 @@ def go_to_Market():
                             player.add_to_inv(weapon_choice, 1) # add item to player inventory
                             print(f'{green}>>{weapon_choice.name.title()} added to inventory<<{end}')
                             player.gp -= weapon_choice.price # take money out of account
-                            player.save_game('load.json') # autosave after they purchsae a weapon
                             enter()
                             continue
                         else: # if not enough money in account
@@ -293,7 +290,6 @@ def go_to_Market():
                             player.add_to_inv(potion_choice, 1)
                             print(f'{green}>>{potion_choice.name.title()} added to inventory<<{end}')
                             player.gp -= potion_choice.price
-                            player.save_game('load.json') 
                             enter()
                             continue
                         else: 
@@ -343,7 +339,6 @@ def go_to_Market():
                             player.add_to_inv(tek_choice, 1)
                             print(f'{green}>>{tek_choice.name.title()} added to inventory<<{end}')
                             player.gp -= tek_choice.price
-                            player.save_game('load.json') 
                             enter()
                             continue
                         else: 
@@ -364,6 +359,7 @@ def go_to_Market():
                     continue
                 
         elif shop in ['l', 'leave', 'x', 'e', 'exit']:
+            player.save_game('load.json') # save when you leave marketplace so saves any purchases made
             in_Marketplace = False
         else:
             print(f"{bold}{red}Invalid{white} command.\n\n{green}Valid{white} commands:\n{end}['s', 'shuda', 'w', 'weapons'\n'p', 'potions'\n't', 'tek', 'Tek', 'Teknology'\n'l', 'leave', 'x', 'e', 'exit'")
@@ -376,40 +372,6 @@ def go_to_Tondc(): ###
 def go_to_ShallowValley(): ###
     pass
 
-class NPC: ### add to playerr module
-    num_of_NPCs = 0
-    def __init__ (self, name): ###CODE THIS, ADD MORE ATTRIBUTES
-        self.name = name
-
-        NPC.num_of_NPCs += 1
-
-class Enemy(): ### add to playerr module: ADD CODE: any other attributes that become necessary (strength and dex)
-    num_of_enemies = 0
-    def __init__ (self, name, armor_class, strength, dex, currentHP, HP, dropItem, dropGP, equipped_weapon=None):
-        self.name = name
-        self.armor_class = armor_class
-        self.strength = strength
-        self.dex = dex
-        self.currentHP = currentHP
-        self.HP = HP
-        self.dropItem = dropItem
-        self.dropGP = dropGP
-        self.equipped_weapon = equipped_weapon
-        #self.strength = strength
-        #self.dex = dex
-
-        Enemy.num_of_enemies +=1 # keep a count of how many enemies exist
-
-# enemy objects
-### THINK ABOUT adding these attributes to Enemy: list of different attack options, 4 options for damage they can do to player (either damage can be randomly chosen or we give them str/dex modifiers for it), death (a string with how each enemy dies)
-reaper = Enemy('reaper', 12, 1, 1, 15, 15, reaper_stick, 3, dagger)
-azgeda = Enemy('azgeda warrior', 10, 1, 1, 10, 10, butterfly_sword, 5, rapier)
-mountain_man = Enemy('mountain man', 18, 1, 2, 15, 18, knockout_gas, 10, crossbow)
-
-random_enemy_list = [reaper, azgeda] # list of enemies that randomly spawn
-random_enemy = r.choice(random_enemy_list) 
-enemies_all = [reaper, azgeda, mountain_man]
-
 ## RUN GAME ##
 while run:
     while mainMenu: # in main menu
@@ -419,27 +381,28 @@ while run:
         draw()
         choice = input("> ").strip().lower() # choice
         if choice in ['1', 'n', 'new', 'new game']: # new game
-            intro()
-            go_to_Earth(player)
+            #intro() # calling introduction scene
             player = choose_crime() # choose crime and return player object based on their choice
             
             if player is not None: 
-                print(f"\n{bold}>>{player.name} created<<{end}")
-                t.sleep(0.5)
-                mainMenu = False
-                play = True
+                print(f"\n{bold}>>{player.name} created<<{end}") # successfully created plaeyr
+                enter()
+                mainMenu = False # leave mainMenu loop
+                play = True # switch to play loop
             else:
                 print("Invalid character selection. Please try again.")
                 enter()
                 mainMenu = True
         
+            go_to_Earth(player) # calling go to Earth sequence
+
         elif choice in ['2', 'l', 'load', 'load game']: # load game
             player = Player.load_game('load.json') # assign loaded player
             if player is not None:
                 player = player
                 print(f"Welcome back, {player.name}")
                 enter()
-                mainMenu = False
+                mainMenu = False # leave mainManu, switch to play loop
                 play = True
             else:
                 print("Corrupt save file or no file found!")
@@ -460,5 +423,5 @@ while run:
             continue
 
     while play:
-        player.save_game('load.json') # autosave
+        player.save_game('load.json') # autosave at beginning of play loop
         go_to_Polis()
