@@ -381,7 +381,7 @@ while run:
         draw()
         choice = input("> ").strip().lower() # choice
         if choice in ['1', 'n', 'new', 'new game']: # new game
-            #intro() # calling introduction scene
+            intro() # calling introduction scene
             player = choose_crime() # choose crime and return player object based on their choice
             
             if player is not None: 
