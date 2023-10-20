@@ -14,7 +14,7 @@
 
 ## Development Status
 
-As of 10/15/2023, the game is in the early stages of development. Key functionalities such as NPCs and the effects of Tek and other items are being implemented. In-game items and storyline flowchart are also in early stages of development. Sections marked with "###" indicate areas that are still under construction.
+As of 10/20/2023, the game is in the early stages of development. Key functionalities such as NPCs and the effects of Tek and other items are being implemented. In-game items and storyline flowchart are also in early stages of development. Sections marked with "###" indicate areas that are still under construction.
 
 ## Installation
 
@@ -48,8 +48,9 @@ To get started, follow these steps:
 ## Bugs
 
 Currently, there are two known bugs: 
-1. Loading a saved game may cause the inventory functionality to stop working, preventing access to inventory item actions.
-2. The game will crash if you choose 0 as your crime choice.
+1. The game will crash if you choose 0 as your crime choice.
+2. os.system("clear") does not work on Windows-- for Windows, it would need to be os.system("cls")
+
 The development team is working to resolve these issues.
 
 ## Inspiration
