@@ -13,7 +13,7 @@ class Character():
         self.equipped_weapon = equipped_weapon
 
 class Player(Character):
-    def __init__(self, name, HP, maxHP, gp, str_ability, str_mod, dex_ability, dex_mod, const_ability, const_mod, int_ability, int_mod, wis_ability, wis_mod, char_ability, char_mod, prof_bonus, xp, AC, equipped_weapon=None, equipped_tek=None, inv=None):
+    def __init__(self, name, HP, maxHP, gp, str_ability, str_mod, dex_ability, dex_mod, const_ability, const_mod, int_ability, int_mod, wis_ability, wis_mod, char_ability, char_mod, prof_bonus, xp, AC, crime_num, equipped_weapon=None, equipped_tek=None, inv=None):
         super().__init__(name, HP, maxHP, AC, str_mod, dex_mod, equipped_weapon)
         self.gp = gp
 
@@ -30,6 +30,7 @@ class Player(Character):
         self.char_mod = char_mod
         self.prof_bonus = prof_bonus # proficiency bonus
         
+        self.crime_num = crime_num
         self.xp = xp
         self.equipped_tek = equipped_tek
         if inv is None: # doing this so we don't have a mutable list set as the default
