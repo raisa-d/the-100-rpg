@@ -1,9 +1,13 @@
 import time as t
-from util import clear, enter, diceRoll, bold, red, white, green, orange, end
-from items import multipurpose_knife, throwing_knives, shiv, dagger, wrench
+from util import clear, enter, bold, red, white, green, orange, end, draw
+from items import multipurpose_knife, throwing_knives, shiv, dagger, wrench, health_potion
 from minigames import code_decryption_minigame
 from cutscenes import get_to_dropship, launching_dropship
-from skill_checks import intelligence_check
+from skill_checks import intelligence_check, const_saving_throw
+
+# list to keep track of which qualities player has earned as a result of decision-making
+# how people will react to them in the future will depend on what qualities are in this list
+character_qualities = []
 
 def taken_to_dropship(user):
     while True: 
@@ -63,30 +67,66 @@ def dropship_malfunction(user):
                 print("\nYou have successfully identified a damaged component in the dropship's propulsion system.")
                 enter()
             else:
-                print("\nYou were unsuccessful and did not figure out the source of the malfunction.\n--> CONSEQUENCES") ### code consequences of failing to do this
+                print("\nYou were unsuccessful and did not figure out the source of the malfunction.\n")
+                brace_for_impact(user)
                 enter()
                 break
         
             while passed: # if you pass ability check/successfully assess damage, move onto code decryption minigame to fix it
                 fixed = code_decryption_minigame()
-                if fixed is True: #if they were successful
-                    print("You successfully fixed the propulsion system!\n--> REWARDS") ### code rewards, what happens (spaceship steadies, safe landing, etc.)
+                if fixed is True: #if fixed system
+                    print("You successfully fixed the propulsion system!\n")
                     enter()
+                    clear()
+                    safe_landing(user)
                     return True
-                else:
-                    print("\nYou were unsuccessful at repairing the propulsion system and brace for impact.\n--> CONSEQUENCES")
-                    enter()
+                else: # if did not fix system
+                    print("\nYou were unsuccessful at repairing the propulsion system and brace for impact.") ### add that they become exhausted from having tried
+                    brace_for_impact(user)
                     return False
         
         elif fix_or_brace in ['b', 'brace', 'brace for impact']:
-            print('WRITE WHAT HAPPENS IF YOU BRACE') ###
-            enter()
+            brace_for_impact(user)
             break
         else:
             print(f"{bold}{red}Invalid command.{green}\nValid commands:\n['a', 'fix', 'fix the issue', 'f',\n'b', 'brace', 'brace for impact']{end}")
             enter()
             clear()
             continue
+
+def safe_landing(user): ### what happens if you fix dropship and have safe landing 
+    # --> spaceship steadies, safe landing, respect & trust, access to salvage, exhaustino
+    print("Thanks to you, the dropship stabilizes, and you land safely on the ground\nwith minimal turbulence.")
+    t.sleep(1)
+    print(f"\nOther survivors recognize your skills and will be more\nlikely to respect you and want to be your ally.\n\nAs a reward for successfully fixing the dropship malfunction,\nyou have received\n{bold}{green}+ two healing potions.{end}")
+    character_qualities.append("respect and trust") # add quality to list
+    user.add_to_inv(health_potion, 2)
+    enter()
+    return character_qualities
+
+def brace_for_impact(user): # what happens when you brace for impact --> crash landing, saving throw, result (consequences/rewards)
+    clear()
+    print("You grip your seat tightly as the dropship crashes with intense turbulence,\ncausing chaos & disorientation. When it hits the ground, you exhale with relief.")
+    t.sleep(1)
+    print("\nYou unbuckle your seatbelt and try to get up, but you're feeling dizzy.\n")
+    draw()
+    print("\nYou must make a saving throw to assess how bad your injuries are.")
+    t.sleep(1)
+    success = const_saving_throw(user, 14)
+    enter()
+    clear()
+    if success: # if succeeded at saving throw
+        print("\nYou are one of the lucky ones and made it to the ground\nwith no injuries, only a light migraine.")
+        enter()
+    else: # if did not succeed
+        print(f"\nYou have bruising and minor lacerations from the crash landing,\nwhich may take a while to heal from unless you find medical supplies.")
+        user.HP -= 4
+        print(f"\nYou lost 4 HP. You now have {user.HP}/{user.maxHP} HP 🩸")
+        character_qualities.append("minor injuries") # consequence
+        enter()
+    print("\nThe shared survival experience strengthens your bonds\nwith the other survivors.")
+    character_qualities.append("shared survival experience") # reward, people will respond better to you
+    return character_qualities
 
 def go_to_Earth(user): 
     taken_to_dropship(user)
