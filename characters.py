@@ -1,6 +1,7 @@
 import time as t, pickle, random as r
-from util import clear, enter, draw, diceRoll, bold, red, end, white, cyan, purple, underline, orange, yellow, green, blue, lime, teal, turquoise, gold, copper
+from util import clear, enter, draw, diceRoll, bold, red, end, white, cyan, purple, underline, orange, yellow, green, blue, lime, teal, turquoise, gold, copper, gray
 from items import weapons_all, tek_all, Potion, Weapon, Item, Tek, Food, Drink, reaper_stick, dagger, butterfly_sword, rapier, knockout_gas, crossbow
+from skill_checks import roll_with_disadvantage, roll_d20
 
 class Character():
     def __init__(self, name, HP, maxHP, AC, str_mod, dex_mod, equipped_weapon=None):
@@ -37,6 +38,39 @@ class Player(Character):
             self.inv = {}
         else:
             self.inv = inv
+
+        self.exhaustion_level = 0 # variable to track exhaustion level
+    
+    def apply_exhaustion_penalty(self): # method to handle exhaustion penalties
+        if self.exhaustion_level == 1: # lvl 1 exhaustion: disadvantage on ability checks
+            print("\nUntil you rest, eat, or drink, you are mildly exhausted and have incurred a disadvantage on ability checks.")
+        
+        elif self.exhaustion_level == 2: # lvl 2 exhaustion: disadvantage on attack rolls and saving throws
+            print("\nUntil you are less exhausted, you will have a disadvantage on attack rolls and saving throws")
+        
+        elif self.exhaustion_level == 3: # lvl 3 exhaustion: HP max halved
+            self.maxHP = self.maxHP/2
+            print("\nYou are very exhausted. Until you rest, eat, or drink,\nyour hit point maximum will be halved.")
+            print(f"{self.name} currently has {self.HP}/{self.maxHP} HP 🩸")
+    
+    def rest(self, short_or_long): # method to handle taking a short or long rest
+        if self.exhaustion_level > 0:
+            if short_or_long == "short": # if choose a short rest
+                print("You take a short rest and recover.")
+                
+                if self.exhaustion_level == 3: # if exhaustion lvl 3
+                    self.maxHP = self.maxHP * 2 # set maxHP back to original maximum
+                
+                self.exhaustion_level -= 1 # remove 1 exhaustion level
+            else: # if choose a long rest
+                print("You take a long rest and fully recover.")
+                
+                if self.exhaustion_level == 3:
+                    self.maxHP = self.maxHP * 2
+                
+                self.exhaustion_level = 0 # set exhaustion lvl back to zero, fully recovered
+        else:
+            print("You are not exhausted.")
 
     def add_to_inv(self, item, quantity):
         if item in self.inv: # if already have this item
@@ -110,15 +144,15 @@ class Player(Character):
 
     def battle(self, target): 
         round = 1
-        while target.HP > 0: # battle loop
+        while target.maxHP > 0: # battle loop
             # print battle screen and round number
             def print_battle_title():
                 clear()
                 bt = f"{bold}{red}xX  Time to Battle  Xx{end}" # title
                 pr = f"{bold}Round {round}{end}"
                 print(f"{bt:^90}") # print battle screen
-                print(f"{pr:^90}") # round number
-                print(f"\n{bold}{purple}{self.name.title()}{end}: {self.HP}/{self.maxHP} HP 🩸\n{bold}{yellow}{target.name.title()}{end}: {target.currentHP} /{target.HP} HP 🩸")
+                print(f"{pr:^85}") # round number
+                print(f"\n{bold}{purple}{self.name.title()}{end}: {self.HP}/{self.maxHP} HP 🩸\n{bold}{yellow}{target.name.title()}{end}: {target.HP} /{target.maxHP} HP 🩸")
             print_battle_title()
             print("\nAttack | Use Item")
             attack_or_inv = input("> ").strip().lower()
@@ -137,28 +171,34 @@ class Player(Character):
                     draw()
                     t.sleep(1)
                     if self.equipped_weapon.melee == True or (self.equipped_weapon.finesse == True and str_mod_or_dex_mod in ['s', 'str_mod', 'str']): # if choose str_mod or have to use str_mod bc melee weapon
-                        attack_roll = diceRoll(20) + self.str_mod
-                        if attack_roll >= target.armor_class: # if attack roll successful, on to do damage
+                        if self.exhaustion_level == 2: # if exhaustion lvl 2, disadvantage on attack roll
+                            attack_roll = roll_with_disadvantage() + self.str_mod
+                        else:
+                            attack_roll = roll_d20() + self.str_mod
+                        if attack_roll >= target.AC: # if attack roll successful, on to do damage
                             damage_roll = diceRoll(self.equipped_weapon.num_of_sides) + self.str_mod
-                            target.currentHP -= damage_roll
-                            print(f'{bold}You were adept with your {self.equipped_weapon.name} and dealt the {target.name} {damage_roll} damage!{end}')
+                            target.HP -= damage_roll
+                            print(f'{bold}{lime}You were adept with your {self.equipped_weapon.name} and dealt the {target.name} {damage_roll} damage!{end}')
                         else: 
-                            print(f"{bold}You miss them and deal no damage.{end}")
+                            print(f"{bold}{orange}You miss them and deal no damage.{end}")
                     
                     elif self.equipped_weapon.range == True or (self.equipped_weapon.finesse == True and str_mod_or_dex_mod in ['d', 'dex_mod', 'dex_modterity']): # if choose dex_mod or need to use dex_mod because range weapon
-                        attack_roll = diceRoll(20) + self.dex_mod
-                        if attack_roll >= target.armor_class: # if attack roll successful, on to do damage
+                        if self.exhaustion_level == 2: # if exhaustion lvl 2, disadvantage on attack roll
+                            attack_roll = roll_with_disadvantage() + self.dex_mod
+                        else:
+                            attack_roll = roll_d20() + self.dex_mod
+                        if attack_roll >= target.AC: # if attack roll successful, on to do damage
                             damage_roll = diceRoll(self.equipped_weapon.num_of_sides) + self.dex_mod
-                            target.currentHP -= damage_roll
-                            print(f'{bold}You were adept with your {self.equipped_weapon.name} and dealt the {target.name} {damage_roll} damage!{end}')
+                            target.HP -= damage_roll
+                            print(f'{bold}{lime}You were adept with your {self.equipped_weapon.name} and dealt the {target.name} {damage_roll} damage!{end}')
                         else: 
-                            print(f"{bold}You miss them and deal no damage.{end}")
+                            print(f"{bold}{orange}You miss them and deal no damage.{end}")
                 
                     else:
                         print(f"{bold}{red}Invalid{end} command.\n\n{bold}{green}Valid{end} commands:\n's', 'str_mod', 'str'\n'd', 'dex_mod', 'dex_modterity'")
                         continue
                 elif attack_or_inv in ['use item', 'item', 'inv', 'i', 'u']: # if want to use an item
-                    print_inventory()
+                    print_inventory(self) # passing player into inventory function
                     print_battle_title()
                     draw()
                     print(f"{bold}You used an inventory item as your turn.{end}")
@@ -173,12 +213,12 @@ class Player(Character):
                     continue
             
             # if kill enemy
-            if target.currentHP <= 0: # if enemy dies
+            if target.HP <= 0: # if enemy dies
                 draw()
                 t.sleep(1)
-                print(f"\nYou have defeated the {target.name}!\n\nThey dropped a {bold}{copper}{target.dropItem.name}{end} and {gold}{target.dropGP} gp{end}.\n\nYou gained 3 HP back 🩸.")
-                self.add_to_inv(target.dropItem, 1)
-                self.gp += target.dropGP
+                print(f"\nYou have defeated the {target.name}!\n\nThey dropped a {bold}{copper}{target.drop_item.name}{end} and {gold}{target.drop_GP} gp{end}.\n\nYou gained 3 HP back 🩸.")
+                self.add_to_inv(target.drop_item, 1)
+                self.gp += target.drop_GP
                 self.xp += 30
                 self.HP += 3
                 return self.inv, self.gp, self.xp
@@ -186,13 +226,13 @@ class Player(Character):
             # enemy's move
             t.sleep(1)
             if target.equipped_weapon.melee == True or target.equipped_weapon.finesse == True:
-                tattack_roll = diceRoll(20) + target.strength
+                tattack_roll = diceRoll(20) + target.str_mod
                 if tattack_roll >= self.AC: # if attack roll successful, on to do damage
-                    tdamage_roll = diceRoll(target.equipped_weapon.num_of_sides) + target.strength
+                    tdamage_roll = diceRoll(target.equipped_weapon.num_of_sides) + target.str_mod
                     self.HP -= tdamage_roll
-                    print(f'\n{bold}The {target.name} dealt you {tdamage_roll} damage{end}')
+                    print(f'\n{bold}{yellow}The {target.name} dealt you {tdamage_roll} damage{end}')
                 else: 
-                    print(f'\n{bold}The {target.name} missed you and dealt no damage!{end}')
+                    print(f'\n{bold}{yellow}The {target.name} missed you and dealt no damage!{end}')
             
             elif target.equipped_weapon.range == True:
                 tattack_roll = diceRoll(20) + target.dex
@@ -211,7 +251,7 @@ class Player(Character):
                 quit()
             
             # if nobody dies
-            if self.HP > 0 and target.HP > 0:
+            if self.HP > 0 and target.maxHP > 0:
                 
                 t.sleep(1)
                 print(f"\nYou have both survived round {round}! 🎉")
@@ -226,7 +266,8 @@ class Player(Character):
         print(f"\n{lime}{bold}Health{white}\t\t  | {self.HP}/{self.maxHP} 🩸\n{gold}Gold{white}\t\t  | {self.gp}")
         print(f"{cyan}Proficiency Bonus{white} | {self.prof_bonus}")
         print(f"{teal}XP {white}\t\t  | {self.xp}")
-        print(f"{turquoise}Armor Class {white}\t  | {self.AC}{end}")
+        print(f"{turquoise}Armor Class {white}\t  | {self.AC}")
+        print(f"{gray}Exhaustion\t  {white}| {self.exhaustion_level}{end}")
         draw()
         print(f"{bold}\n\t   Ability    Modifier")
         print(f"{red}Strength{white}     | {self.str_ability} | {self.str_mod}")
@@ -332,6 +373,11 @@ def print_inventory(player):
                                 break
 
                         elif option in ['s', 'sell']: # sell
+                            if selected_item.name == player.equipped_weapon.name: # if the item is the equipped item, remove it
+                                player.equipped_weapon = None
+                            if selected_item.name == player.equipped_tek.name:
+                                player.equipped_tek = None
+
                             player.remove_from_inv(selected_item, 1)
                             print(f"{gold}>> {selected_item.name} sold for {selected_item.price} gp <<{end}")
                             player.gp += selected_item.price
@@ -353,7 +399,7 @@ def print_inventory(player):
                                 selected_item.eat(player)
                                 break
                             elif isinstance(selected_item, Drink): # if its a drink
-                                selected_item.drink()
+                                selected_item.drink(player)
                                 break
                         
                         elif option in ['u', 'unequip']:
