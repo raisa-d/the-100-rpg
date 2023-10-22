@@ -4,7 +4,7 @@ import random as r, time as t
 from crime import crimes
 from util import clear, enter, draw, red, underline, bold, end, white, yellow, green, cyan, gold, blue, copper, purple, orange, gray
 from cutscenes import intro
-from events import go_to_Earth
+from events import go_to_Earth, character_qualities
 from items import rapier, dagger, multipurpose_knife, throwing_knives, shiv, wrench
 from items import wristband, the_fleim, rations, small_waterskin, weapons_for_sale, tek_for_sale, potions_all
 from characters import print_inventory, Player, azgeda
@@ -64,39 +64,42 @@ def choose_crime(): # choose crime/create player instance
                             char_name = input('Please enter a name\n\n> ').strip().title()
                         
                         if crime_index == 0: # vital supplies
-                            player = Player(char_name, 11, 11, 10, 14, 2, 15, 2, 16, 3, 13, 1, 11, 0, 9, -1, 2, 0, 12, multipurpose_knife, wristband, {})
+                            player = Player(char_name, 11, 11, 10, 14, 2, 15, 2, 16, 3, 13, 1, 11, 0, 9, -1, 2, 0, 12, 0, multipurpose_knife, wristband, {})
                             player.add_to_inv(multipurpose_knife, 1)
                             player.add_to_inv(wristband, 1)
                             player.add_to_inv(rations, 2)
                             player.add_to_inv(small_waterskin, 1)
+                            character_qualities.append("others mistrust you")
                         
                         elif crime_index == 1: # rebellion leader
-                            player = Player(char_name, 12, 12, 10, 16, 3, 14, 2, 15, 2, 9, -1, 11, 0, 13, 1, 2, 0, 12, throwing_knives, wristband, {})
+                            player = Player(char_name, 12, 12, 10, 16, 3, 14, 2, 15, 2, 9, -1, 11, 0, 13, 1, 2, 0, 12, 1, throwing_knives, wristband, {})
                             player.add_to_inv(throwing_knives, 1)
                             player.add_to_inv(wristband, 1)
                             player.add_to_inv(rations, 2)
                             player.add_to_inv(small_waterskin, 1)
+                            character_qualities.append("rebellion leader")
                         
                         elif crime_index == 2: # cannabis thief
-                            player = Player(char_name, 10, 10, 10, 13, 1, 14, 2, 15, 2, 11, 0, 16, 3, 9, -1, 2, 0, 12, shiv, wristband, {})
+                            player = Player(char_name, 10, 10, 10, 13, 1, 14, 2, 15, 2, 11, 0, 16, 3, 9, -1, 2, 0, 12, 2, shiv, wristband, {})
                             player.add_to_inv(shiv, 1)
                             player.add_to_inv(wristband, 1)
                             player.add_to_inv(rations, 2)
                             player.add_to_inv(small_waterskin, 1)
 
                         elif crime_index == 3: # second child
-                            player = Player(char_name, 12, 12, 10, 16, 3, 15, 2, 14, 2, 11, 0, 9, -1, 13, 1, 2, 0, 12, dagger, wristband, {})
+                            player = Player(char_name, 12, 12, 10, 16, 3, 15, 2, 14, 2, 11, 0, 9, -1, 13, 1, 2, 0, 12, 3, dagger, wristband, {})
                             player.add_to_inv(dagger, 1)
                             player.add_to_inv(wristband, 1)
                             player.add_to_inv(rations, 2)
                             player.add_to_inv(small_waterskin, 1)
                     
                         elif crime_index == 4: # falsely accused
-                            player = Player(char_name, 10, 10, 10, 16, 3, 15, 2, 14, 2, 9, -1, 13, 1, 11, 0, 2, 0, 13, wrench, wristband, {})
+                            player = Player(char_name, 10, 10, 10, 16, 3, 15, 2, 14, 2, 9, -1, 13, 1, 11, 0, 2, 0, 13, 4, wrench, wristband, {})
                             player.add_to_inv(wrench, 1)
                             player.add_to_inv(wristband, 1)
                             player.add_to_inv(rations, 2)
                             player.add_to_inv(small_waterskin, 1)
+                            character_qualities.append("others mistrust you")
 
                         return player
 
