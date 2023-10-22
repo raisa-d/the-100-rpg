@@ -54,8 +54,21 @@ class Food(Item):
                  
     def eat(self, user):
         print(f"{bold}{red}You scarf down the {self.name} and relish in a warm belly.{end}")
+        
+        # handling effects of eating on exhaustion
+        if user.exhaustion_level == 3: # if exhaustion lvl 3
+            user.maxHP = user.maxHP * 2 # set maxHP back to original maximum
+            user.exhaustion_level -= 1
+            print("\nEating reduced your exhaution by 1 level and your HP maximum has returned to normal.")
+        elif 3 > user.exhaustion_level > 0: # if exhaustion level 1 or 2
+            user.exhaustion_level -= 1
+            print("\nEating reduced your exhaustion by 1 level.")
+        else:
+            print(f"\nYou were not exhausted, so you have received 1 health potion since you used your {self.name} anyway.")
+            user.add_to_inv(health_potion, 1)
         user.remove_from_inv(self, 1)
         enter()
+        return user.exhaustion_level
 
 class Drink(Item):
     def __init__(self, name, desc, price, num_of_sips):
@@ -63,12 +76,22 @@ class Drink(Item):
         self.num_of_sips = num_of_sips # total number of sips drink can provide
         self.remaining_sips = num_of_sips # number of remaining sips in drink
 
-    def drink(self):
+    def drink(self, user):
         if self.remaining_sips > 0:
             print(f"{bold}{cyan}You gulp down the crisp water.{end}") ### change from "water" to something else if you add other kinds of drinks (i.e., Jo Juice)
             self.remaining_sips -= 1 # remove sip from water
-            ### add effects of drinking item once create exhaustion/mana variable that drinking water helps with
+            
+            # add effects of drinking water on exhaustion lvls
+            if user.exhaustion_level == 3: # if exhaustion lvl 3
+                user.maxHP = user.maxHP * 2 # set maxHP back to original maximum
+                user.exhaustion_level -= 1 # reduce lvl by 1
+                print("\nDrinking reduced your exhaution by 1 level and your HP maximum has returned to normal.")
+            elif 3 > user.exhaustion_level > 0: # if exhaustion level 1 or 2
+                user.exhaustion_level -= 1
+                print("\nDrinking reduced your exhaustion by 1 level.")
             enter()
+            return user.exhaustion_level
+        
         else:
             print(f"\n{bold}The {self.name} is empty. Refill it at a water source.{end}")
             enter()
