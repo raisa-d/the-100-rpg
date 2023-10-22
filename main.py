@@ -153,11 +153,11 @@ def go_to_Polis():
                 response = input('\n> ').strip().lower()
                 if response is not None:
                     if response in ['azgeda gonas', 'azgeda', 'a', 'gonas', 'gona', 'g']:
-                        if azgeda.currentHP <= 0: azgeda.currentHP = azgeda.HP
+                        if azgeda.HP <= 0: azgeda.HP = azgeda.maxHP
                         player.battle(azgeda)### testing
                         enter()
                     elif response in ['woman', 'w', 'elderly woman', 'elder', 'fleimkepa', 'f', 'flamekeeper']:
-                        if player.name.lower() == 'fleimkepa':
+                        if player.name.lower() == 'fleimkepa': ### change this interaction since fleimkepa is no longer a character choice
                             print('You walk closer to the woman and realize it is Luna,\nthe eldest remaining fleimkepa.\n')
                             t.sleep(1)
                             print("\"Young Fleimkepa, it is up to you now to\nprotect both the Fleim and the Heda who bears it.\nMeet me at the Temple so I may give you something.\"")
