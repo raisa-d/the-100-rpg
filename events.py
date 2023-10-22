@@ -98,9 +98,11 @@ def safe_landing(user): ### what happens if you fix dropship and have safe landi
     # --> spaceship steadies, safe landing, respect & trust, access to salvage, exhaustino
     print("Thanks to you, the dropship stabilizes, and you land safely on the ground\nwith minimal turbulence.")
     t.sleep(1)
-    print(f"\nOther survivors recognize your skills and will be more\nlikely to respect you and want to be your ally.\n\nAs a reward for successfully fixing the dropship malfunction,\nyou have received\n{bold}{green}+ two healing potions.{end}")
+    print(f"\nOther survivors recognize your skills and will be more\nlikely to respect you and want to be your ally.\n\nAs a reward for successfully fixing the dropship malfunction,\nyou have received\n{bold}{green}+ 1 healing potion.{end}")
+    user.exhaustion_level += 2
+    user.apply_exhaustion_penalty()
     character_qualities.append("respect and trust") # add quality to list
-    user.add_to_inv(health_potion, 2)
+    user.add_to_inv(health_potion, 1)
     enter()
     return character_qualities
 
@@ -117,13 +119,12 @@ def brace_for_impact(user): # what happens when you brace for impact --> crash l
     clear()
     if success: # if succeeded at saving throw
         print("\nYou are one of the lucky ones and made it to the ground\nwith no injuries, only a light migraine.")
-        enter()
     else: # if did not succeed
-        print(f"\nYou have bruising and minor lacerations from the crash landing,\nwhich may take a while to heal from unless you find medical supplies.")
-        user.HP -= 4
-        print(f"\nYou lost 4 HP. You now have {user.HP}/{user.maxHP} HP 🩸")
-        character_qualities.append("minor injuries") # consequence
-        enter()
+        print(f"\nYou have bruising and minor lacerations from the crash landing.")
+        user.HP -= 3
+        print(f"\nYou lost 3 HP. You now have {user.HP}/{user.maxHP} HP 🩸")
+    user.exhaustion_level += 1
+    user.apply_exhaustion_penalty()
     print("\nThe shared survival experience strengthens your bonds\nwith the other survivors.")
     character_qualities.append("shared survival experience") # reward, people will respond better to you
     return character_qualities
