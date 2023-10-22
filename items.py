@@ -78,6 +78,9 @@ class Drink(Item):
         print(f"{bold}{turquoise}You refill the {self.name}.{end}")
         enter()
 
+# other items
+first_aid_kit = Item('first aid kit', 'A kit with basic medical supplies', 10) ### have ability to scavenge for this or buy it?
+
 # consumable objects
 rations = Food("1 days rations", "WRITE DESC", 5)
 small_waterskin = Drink("small waterskin", "WRITE DESC", 2, num_of_sips=3)
