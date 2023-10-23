@@ -14,7 +14,7 @@
 
 ## Development Status
 
-As of 10/20/2023, the game is in the early stages of development. Key functionalities such as NPCs and the effects of Tek and other items are being implemented. In-game items and storyline flowchart are also in early stages of development. Sections marked with "###" indicate areas that are still under construction.
+As of 10/20/2023, the game is in the early stages of development. Key functionalities such as the effects of Tek and the battle system and other items are being fleshed out & implemented. In-game items and storyline flowchart are also in early stages of development. Sections marked with "###" indicate areas that are still under construction.
 
 NOTE: main.py is always published with extensive notes regarding what has changed since the last github update, bugs, next steps, and ideas to build on. 
 Please look at those notes if you want to see more of an in-depth play-by-play of game progress!
@@ -29,7 +29,7 @@ To get started, follow these steps:
 ## Usage
 
 - Choose your character's crime that suits your playstyle.
-- Explore the richly detailed world of "The 100."
+- Explore the world of "The 100."
 - Engage in thrilling turn-based battles with various enemies.
 - Manage your inventory and collect items.
 - Have unique interactions with NPCs based on your player's crime.
