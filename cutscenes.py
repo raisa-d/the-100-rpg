@@ -4,11 +4,11 @@ from util import clear, enter, bold, red, cyan, end
 def intro(): # scene: get introduced to the game and choose your character
     clear()
     print("When the nuclear apocalypse destroyed Earth, groups\nof lucky individuals made it onto 13 space stations\nand shot themselves into space to ensure the survival\nof the human race. 12 space stations joined together\nand were renamed the Ark.")
-    t.sleep(2)
+    t.sleep(1)
     print("\nOn the Ark, every crime is punishable by death unless\nyou are under 18 years old, in which case, you get\nimprisoned in the Sky Box.")
-    t.sleep(2)
+    t.sleep(1)
     print("\n97 years post-apocalypse, you are a prisoner on the Ark.\n")
-    t.sleep(2)
+    t.sleep(1)
     input(f"[{bold}{cyan}Enter{end}] to choose your crime\n")
 
 def get_to_dropship(): # scene: getting to dropship
