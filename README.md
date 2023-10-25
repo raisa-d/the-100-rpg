@@ -14,7 +14,7 @@
 
 ## Development Status
 
-As of 10/20/2023, the game is in the early stages of development. Key functionalities such as the effects of Tek and the battle system and other items are being fleshed out & implemented. In-game items and storyline flowchart are also in early stages of development. Sections marked with "###" indicate areas that are still under construction.
+As of 10/25/2023, the game is in the early stages of development. Key functionalities such as the effects of Tek and the battle system and other items are being fleshed out & implemented. In-game items and storyline flowchart are also in early stages of development. Sections marked with "###" indicate areas that are still under construction.
 
 NOTE: main.py is always published with extensive notes regarding what has changed since the last github update, bugs, next steps, and ideas to build on. 
 Please look at those notes if you want to see more of an in-depth play-by-play of game progress!
@@ -53,10 +53,10 @@ To get started, follow these steps:
 Currently, there is one known bug: 
 1. os.system("clear") does not work on Windows-- for Windows, it would need to be os.system("cls")
 
-The development team is working to resolve these issues.
+The game developer is working to resolve these issues.
 
 ## Inspiration
 
-The creation of this game was inspired by other text-based Python RPGs, such as "Farcore" by OverdriveReplit. You can check it out [here](https://replit.com/@OverdriveReplit/Farcore?v=1#main.py).
+The creation of this game was inspired by the CW's "The 100" and other text-based Python RPGs, such as "Farcore" by OverdriveReplit. You can check it out [here](https://replit.com/@OverdriveReplit/Farcore?v=1#main.py).
 
 Feel free to explore, contribute, or provide feedback to help improve "The 100 Role Player Game." Enjoy your adventure in the world of "The 100"!
