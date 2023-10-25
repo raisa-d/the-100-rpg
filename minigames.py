@@ -48,20 +48,15 @@ def code_decryption_minigame():
         symbols_picked.append(player_guess) # add symbol to list
 
         if player_guess in correct_code: # if symbol is somewhere in the code
-            if code_solved:
-                print(f'\n{bold}{green}Success! You decyrpted the code and fixed the dropship propulsion.{end}')
-                return True
-            else:
-                print("You solved a piece of the code!")
+            print("You solved a piece of the code!")
             enter()
         else: # if symbol is not in the code
             print("\nThat symbol is not in the code.")
             lives -= 1
             enter()
+        
+        if code_solved: # if solve code
+            return True
 
         if lives <= 0 and code_solved == False:
-            clear()
-            print(f"{minigame_title:>110}")
-            print(f"{orange}\nYou failed to unlock the controls. The alarm blares.{end}")
-            enter()
             return False
