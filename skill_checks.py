@@ -2,6 +2,24 @@ import time as t
 from util import diceRoll, enter, bold, end, green, red
 
 def roll_with_disadvantage(): # handles disadvantaged rolls incurred from exhaustion
+    roll1 = diceRoll(20)
+    roll2 = diceRoll(20)
+    final_roll = min(roll1, roll2)
+    return final_roll
+
+def roll_d20():
+    roll = diceRoll(20)
+    return roll
+
+def roll_d20_with_narration():
+    roll = diceRoll(20)
+    print("\nRolling d20...")
+    t.sleep(0.5)
+    print(f"\nYou rolled {roll}.\n")
+    t.sleep(0.5)
+    return roll
+
+def disadvantage_with_narration():
     print("\nDue to exhaustion, you have a disadvantage and will use the lower of two dice rolls.")
     print("\nRolling first d20...")
     t.sleep(0.5)
@@ -16,20 +34,12 @@ def roll_with_disadvantage(): # handles disadvantaged rolls incurred from exhaus
     print(f"{bold}\nYou got {final_roll}.{end}\n")
     return final_roll
 
-def roll_d20():
-    roll = diceRoll(20)
-    print("\nRolling d20...")
-    t.sleep(0.5)
-    print(f"\nYou rolled {roll}.\n")
-    t.sleep(0.5)
-    return roll
-
 # intelligence skill check --> investigation, history, arcana, nature, religion
 def intelligence_check(user, difficulty_class): # pass in player and difficulty class of what you're trying to do
     if user.exhaustion_level == 1: # if exhaustion level 1, roll with disadvantage
-        roll = roll_with_disadvantage()
+        roll = disadvantage_with_narration()
     else: # if not exhaustion lvl 1, no disadvantage to ability check rolls
-        roll = roll_d20()
+        roll = roll_d20_with_narration()
     print("Adding your intelligence modifier...")
     t.sleep(1)
     int_check = roll + user.int_mod
@@ -63,9 +73,9 @@ def dex_check(user, DC):
 # constitution saving throw
 def const_saving_throw(user, DC):
     if user.exhaustion_level == 2: # if exhaustion level 2, disadvantage on saving throws
-        roll = roll_with_disadvantage()
+        roll = disadvantage_with_narration()
     else:
-        roll = roll_d20()
+        roll = roll_d20_with_narration()
     t.sleep(1)
     if user.crime_num == 3: # second child has constitution proficiency and therefore adds proficiency bonus and constitution modifier
         print("Adding your constitution modifier and proficiency bonus...")
