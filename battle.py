@@ -60,43 +60,52 @@ class Battle:
                 round += 1 # adding onto round
                 enter()
 
+    def use_strength(self):
+        if self.plyr.exhaustion_level == 2: # if exhaustion lvl 2, disadvantage on attack roll
+            draw()
+            attack_roll = roll_with_disadvantage() + self.plyr.str_mod
+            print(f"{bold}You got {attack_roll}.{end}\n")
+        else:
+            draw()
+            attack_roll = roll_d20() + self.plyr.str_mod
+            print(f"{bold}You got {attack_roll}.{end}\n")
+        return attack_roll
+
+    def use_dex(self):
+        if self.plyr.exhaustion_level == 2:
+            draw()
+            attack_roll = roll_with_disadvantage() + self.plyr.dex_mod
+            print(f"{bold}\nYou got {attack_roll}.{end}\n")
+        else:
+            draw()
+            attack_roll = roll_d20() + self.plyr.dex_mod
+            print(f"{bold}\nYou got {attack_roll}.{end}\n")
+        return attack_roll
+
     def plyr_attack(self): # player attack 
+        str_or_dex = ""
         while True:
             print_battle_title(self.plyr, self.enemy)
             if self.plyr.equipped_weapon is not None: # if have a weapon
                 if self.plyr.equipped_weapon.finesse == True: # if finesse weapon, choice of str or dex_mod
                     str_or_dex = input(f"\n{bold}| {turquoise}Strength ({self.plyr.str_mod}){white} | {blue}Dexterity ({self.plyr.dex_mod}){white} |{end}\n\n> ").strip().lower()
                 
-                if str_or_dex != "":
-                    # if using strength modifier (melee or chose str)
-                    if str_or_dex[0] == "s" or self.plyr.equipped_weapon.melee == True: 
-                        if self.plyr.exhaustion_level == 2: # if exhaustion lvl 2, disadvantage on attack roll
-                            draw()
-                            attack_roll = roll_with_disadvantage() + self.plyr.str_mod
-                            print(f"{bold}You got {attack_roll}.{end}\n")
-                        else:
-                            draw()
-                            attack_roll = roll_d20() + self.plyr.str_mod
-                            print(f"{bold}You got {attack_roll}.{end}\n")
+                if str_or_dex != "": ### CHANGE THIS SO IF YOU HAVE A MELEE OR RANGE WEAPON IT STILL WORKS, AS STR_OR_DEX WILL NOT BE ASSOCIATED WITH A VALUE
+                    if str_or_dex in ["s", "strength"]: 
+                        attack_roll = self.use_strength()
 
-                    # if using dex modifier (range or chose str)
-                    elif str_or_dex[0] == "d" or self.plyr.equipped_weapon.range == True:
-                        if self.plyr.exhaustion_level == 2:
-                            draw()
-                            attack_roll = roll_with_disadvantage() + self.plyr.dex_mod
-                            print(f"{bold}\nYou got {attack_roll}.{end}\n")
-                        else:
-                            draw()
-                            attack_roll = roll_d20() + self.plyr.dex_mod
-                            print(f"{bold}\nYou got {attack_roll}.{end}\n")
+                    elif str_or_dex in ["d", "dex", "dexterity"]:
+                        attack_roll = self.use_dex()
                     else:
-                        print(f"{bold}{red}Invalid command.\n{green}Valid commands:\n{white}'strength', 'dexterity', or the first letter of each word{end}")
+                        print(f"{bold}{red}Invalid command.\n{green}Valid commands:\n{white}'strength', 'dexterity', 'dex', or the first letter of each word{end}")
                         enter()
                         continue
-                else:
-                    print(f"{bold}{red}Invalid command.\n{green}Valid commands:\n{white}'strength', 'dexterity', or the first letter of each word{end}")
-                    enter()
-                    continue
+
+                else: # if string is empty or None
+                    if self.plyr.equipped_weapon.melee:
+                        attack_roll = self.use_strength()
+                    elif self.plyr.equipped_weapon.range:
+                        attack_roll = self.use_dex()
                 
                 # attack and damage rolls
                 if attack_roll >= self.enemy.AC: # if attack roll successful, on to do damage
@@ -110,7 +119,7 @@ class Battle:
                     draw()
                     break
 
-            else: ### code for unarmed strikes
+            else: # code for unarmed strikes
                 verbs = ["punch", "headbutt", "kick"]
                 chosen_verb = r.choice(verbs) # randomly choose whether they punch, headbutt, or kick enemy to make it more intersting
                 print()
