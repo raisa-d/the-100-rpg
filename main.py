@@ -8,6 +8,7 @@ from events import go_to_Earth, character_qualities
 from items import rapier, dagger, multipurpose_knife, throwing_knives, shiv, wrench
 from items import wristband, the_fleim, rations, small_waterskin, weapons_for_sale, tek_for_sale, potions_all
 from characters import print_inventory, Player, azgeda
+from battle import Battle
 
 # default booleans
 run = True # game is running
@@ -131,7 +132,7 @@ def go_to_Polis():
         clear()
         print(f"Location: {red}{underline}{bold}Polis{end}\n")
         print("The square is alive with the chatter of Grounders in various outfits,\neach representing their clan. Warriors bearing weapons stride with\nconfidence, while traders and healers offer their wares and services at their\nmarket stalls. Grounder children play among the bustling crowd.\n")
-        print(f"{bold}Exit | {gold}Inv {white}| {red}Save {white}| {blue}Stats {white}| {copper}Marketplace{white} | {green}Converse {white}|{end}")
+        print(f"{bold}Exit | {red}Save {white}| {gold}Inv {white}| {blue}Stats {white}| {copper}Marketplace{white} | {green}Converse {white}|{end}")
         action = input("> ").strip().lower()
         if action in ['x', 'exit']: # exit
             player.save_game('load.json') # save before exiting game
@@ -153,9 +154,27 @@ def go_to_Polis():
                 response = input('\n> ').strip().lower()
                 if response is not None:
                     if response in ['azgeda gonas', 'azgeda', 'a', 'gonas', 'gona', 'g']:
-                        if azgeda.HP <= 0: azgeda.HP = azgeda.maxHP
-                        player.battle(azgeda)### testing
-                        enter()
+                        if azgeda.HP <= 0: azgeda.HP = azgeda.maxHP # if you already fought them and their HP is 0, set it to max again so player can battle again
+                        azgeda_battle = Battle(player, azgeda) # create instance of Battle class
+                        result = azgeda_battle.start_battle()
+                        
+                        if result: # if you defeat the enemy
+                            enter()
+                            clear()
+                            print(f"You have defeated the {azgeda_battle.enemy.name}!")
+                            print(f"\n{bold}+ {copper}{azgeda_battle.enemy.drop_item.name}{white}\n+ {gold}{azgeda_battle.enemy.drop_GP} gp{white}\n+ {green}3 HP 🩸{end}")
+                            
+                            # drop items
+                            azgeda_battle.plyr.add_to_inv(azgeda_battle.enemy.drop_item, 1)
+                            azgeda_battle.plyr.gp += azgeda_battle.enemy.drop_GP
+                            azgeda_battle.plyr.xp += 30
+                            azgeda_battle.plyr.HP += 3
+                            enter()
+    
+                        else: # if enemy defeats you 
+                            print('\nYu gonplei ste odon.\nMay we meet again.')
+                            quit()
+
                     elif response in ['woman', 'w', 'elderly woman', 'elder', 'fleimkepa', 'f', 'flamekeeper']:
                         if player.name.lower() == 'fleimkepa': ### change this interaction since fleimkepa is no longer a character choice
                             print('You walk closer to the woman and realize it is Luna,\nthe eldest remaining fleimkepa.\n')
@@ -180,7 +199,7 @@ def go_to_Polis():
                                 print('Please choose yes or no.') ### make a while loop?
                                 enter() 
                         else:
-                            print('CONVO WITH FLEIMKEPA') ### add conversation non-fleimkepas have with her
+                            print('The woman whispers something in your ear. (CHANGE THIS LATER)') ### add conversation non-fleimkepas have with her
                         enter()
                     elif response in ['x', 'exit', 'e', 'leave', 'l']: break
                     else: 
