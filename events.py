@@ -75,13 +75,13 @@ def dropship_malfunction(user):
             while passed: # if you pass ability check/successfully assess damage, move onto code decryption minigame to fix it
                 fixed = code_decryption_minigame()
                 if fixed is True: #if fixed system
-                    print("You successfully fixed the propulsion system!\n")
+                    print(f"{bold}{green}You successfully fixed the propulsion system!\n{end}")
                     enter()
                     clear()
                     safe_landing(user)
                     return True
                 else: # if did not fix system
-                    print("\nYou were unsuccessful at repairing the propulsion system and brace for impact.") ### add that they become exhausted from having tried
+                    print(f"\n{red}{bold}You were unsuccessful at repairing the propulsion system.\nThe alarm blares.\nYou brace for impact.{end}") ### add that they become exhausted from having tried
                     brace_for_impact(user)
                     return False
         
