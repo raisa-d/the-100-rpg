@@ -110,8 +110,44 @@ class Battle:
                     draw()
                     break
 
-            else: 
-                pass ### code for unarmed strikes
+            else: ### code for unarmed strikes
+                verbs = ["punch", "headbutt", "kick"]
+                chosen_verb = r.choice(verbs) # randomly choose whether they punch, headbutt, or kick enemy to make it more intersting
+                print()
+                draw()
+                print(f"{purple}{bold}You prepare to {chosen_verb} the {self.enemy.name}!{end}\n")
+
+                # attack roll
+                if self.plyr.crime_num in [1, 3, 4]: # these crimes have a unarmed strike Hit/DC of +5
+                    attack_roll = roll_d20() + 5
+                
+                elif self.plyr.crime_num == 0: # vital supplies has DC of +4
+                    attack_roll = roll_d20() + 4
+                
+                else: # cannabis thief has DC +3
+                    attack_roll = roll_d20() + 3
+
+                # damage roll
+                if attack_roll >= self.enemy.AC: # if attack roll successful
+                    
+                    if self.plyr.crime_num == 4: #  for Falsely Accused criminal
+                        damage_roll = diceRoll(4) + 3 # 1d4 + 3 damage
+                        self.enemy.HP -= damage_roll # subtract damage from enemy's HP
+                    
+                    else: # other characters' damage is 1 + their strength modifier
+                        damage_roll = 1 + self.plyr.str_mod
+                        self.enemy.HP -= damage_roll # subtract damage from enemy's HP
+                    
+                    # print fight method
+                    print(f'{bold}{lime}You deal the {self.enemy.name} {damage_roll} damage!{end}')
+                    draw()
+                    break
+
+                else: # if attack roll unsuccessful
+                    print(f"{bold}{orange}You miss them and deal no damage.{end}")
+                    draw()
+                    break
+                
 
     def reaction_turn(self): # player reaction turn
         enter()
