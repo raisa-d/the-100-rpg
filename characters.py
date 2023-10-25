@@ -40,6 +40,10 @@ class Player(Character):
             self.inv = inv
 
         self.exhaustion_level = 0 # variable to track exhaustion level
+        self.is_dodging = False # handles dodging state for Battle
+    
+    def toggle_dodge(self): 
+        self.is_dodging = not self.is_dodging  # Toggle dodging state
     
     def apply_exhaustion_penalty(self): # method to handle exhaustion penalties
         if self.exhaustion_level == 1: # lvl 1 exhaustion: disadvantage on ability checks
@@ -141,124 +145,6 @@ class Player(Character):
                     print(f"{red}{bold}You do not have your {selected_item.name} equipped right now.{end}")
             else: # if there is no tek equipped
                 print(f"{red}{bold}You have no tek equipped right now.{end}") 
-
-    def battle(self, target): 
-        round = 1
-        while target.maxHP > 0: # battle loop
-            # print battle screen and round number
-            def print_battle_title():
-                clear()
-                bt = f"{bold}{red}xX  Time to Battle  Xx{end}" # title
-                pr = f"{bold}Round {round}{end}"
-                print(f"{bt:^90}") # print battle screen
-                print(f"{pr:^85}") # round number
-                print(f"\n{bold}{purple}{self.name.title()}{end}: {self.HP}/{self.maxHP} HP 🩸\n{bold}{yellow}{target.name.title()}{end}: {target.HP} /{target.maxHP} HP 🩸")
-            print_battle_title()
-            print("\nAttack | Use Item")
-            attack_or_inv = input("> ").strip().lower()
-
-            if attack_or_inv is not None:
-                if attack_or_inv in ['a', 'attack']: # if choose attack
-                    if self.equipped_weapon is not None:
-                        if self.equipped_weapon.finesse == True: # if finesse weapon, choice of str or dex_mod
-                                str_mod_or_dex_mod = input(f"Do you want to use your Strength ({self.str_mod}) or Dexterity ({self.dex_mod}) modifier?\n> ").strip().lower()
-                    else: 
-                        print('You need to equip a weapon before you battle')
-                        break
-
-                    # your move
-                    print()
-                    draw()
-                    t.sleep(1)
-                    if self.equipped_weapon.melee == True or (self.equipped_weapon.finesse == True and str_mod_or_dex_mod in ['s', 'str_mod', 'str']): # if choose str_mod or have to use str_mod bc melee weapon
-                        if self.exhaustion_level == 2: # if exhaustion lvl 2, disadvantage on attack roll
-                            attack_roll = roll_with_disadvantage() + self.str_mod
-                        else:
-                            attack_roll = roll_d20() + self.str_mod
-                        if attack_roll >= target.AC: # if attack roll successful, on to do damage
-                            damage_roll = diceRoll(self.equipped_weapon.num_of_sides) + self.str_mod
-                            target.HP -= damage_roll
-                            print(f'{bold}{lime}You were adept with your {self.equipped_weapon.name} and dealt the {target.name} {damage_roll} damage!{end}')
-                        else: 
-                            print(f"{bold}{orange}You miss them and deal no damage.{end}")
-                    
-                    elif self.equipped_weapon.range == True or (self.equipped_weapon.finesse == True and str_mod_or_dex_mod in ['d', 'dex_mod', 'dex_modterity']): # if choose dex_mod or need to use dex_mod because range weapon
-                        if self.exhaustion_level == 2: # if exhaustion lvl 2, disadvantage on attack roll
-                            attack_roll = roll_with_disadvantage() + self.dex_mod
-                        else:
-                            attack_roll = roll_d20() + self.dex_mod
-                        if attack_roll >= target.AC: # if attack roll successful, on to do damage
-                            damage_roll = diceRoll(self.equipped_weapon.num_of_sides) + self.dex_mod
-                            target.HP -= damage_roll
-                            print(f'{bold}{lime}You were adept with your {self.equipped_weapon.name} and dealt the {target.name} {damage_roll} damage!{end}')
-                        else: 
-                            print(f"{bold}{orange}You miss them and deal no damage.{end}")
-                
-                    else:
-                        print(f"{bold}{red}Invalid{end} command.\n\n{bold}{green}Valid{end} commands:\n's', 'str_mod', 'str'\n'd', 'dex_mod', 'dex_modterity'")
-                        continue
-                elif attack_or_inv in ['use item', 'item', 'inv', 'i', 'u']: # if want to use an item
-                    print_inventory(self) # passing player into inventory function
-                    print_battle_title()
-                    draw()
-                    print(f"{bold}You used an inventory item as your turn.{end}")
-                else:
-                    print(f"{red}{bold}Invalid command.\n{green}Valid commands:{end}\n['a', 'attack'\n'use item', 'item', 'inv', 'i', 'u']")
-                    t.sleep(1)
-                    print_battle_title()
-                    continue
-            else:
-                    print(f"{red}{bold}Invalid command.\n{green}Valid commands:{end}\n['a', 'attack'\n'use item', 'item', 'inv', 'i', 'u']")
-                    t.sleep(1)
-                    continue
-            
-            # if kill enemy
-            if target.HP <= 0: # if enemy dies
-                draw()
-                t.sleep(1)
-                print(f"\nYou have defeated the {target.name}!\n\nThey dropped a {bold}{copper}{target.drop_item.name}{end} and {gold}{target.drop_GP} gp{end}.\n\nYou gained 3 HP back 🩸.")
-                self.add_to_inv(target.drop_item, 1)
-                self.gp += target.drop_GP
-                self.xp += 30
-                self.HP += 3
-                return self.inv, self.gp, self.xp
-
-            # enemy's move
-            t.sleep(1)
-            if target.equipped_weapon.melee == True or target.equipped_weapon.finesse == True:
-                tattack_roll = diceRoll(20) + target.str_mod
-                if tattack_roll >= self.AC: # if attack roll successful, on to do damage
-                    tdamage_roll = diceRoll(target.equipped_weapon.num_of_sides) + target.str_mod
-                    self.HP -= tdamage_roll
-                    print(f'\n{bold}{yellow}The {target.name} dealt you {tdamage_roll} damage{end}')
-                else: 
-                    print(f'\n{bold}{yellow}The {target.name} missed you and dealt no damage!{end}')
-            
-            elif target.equipped_weapon.range == True:
-                tattack_roll = diceRoll(20) + target.dex
-                if tattack_roll >= self.AC: # if attack roll successful, on to do damage
-                    tdamage_roll = diceRoll(target.equipped_weapon.num_of_sides) + target.dex
-                    self.HP -= tdamage_roll
-                    print(f'\n{bold}The {target.name} dealt you {tdamage_roll} damage{end}')
-                else: 
-                    print(f'{bold}The {target.name} missed you and dealt no damage!{end}')
-            draw()
-
-            # if enemy kills self
-            if self.HP <= 0:
-                t.sleep(1)
-                print('\nYu gonplei ste odon.\nMay we meet again.')
-                quit()
-            
-            # if nobody dies
-            if self.HP > 0 and target.maxHP > 0:
-                
-                t.sleep(1)
-                print(f"\nYou have both survived round {round}! 🎉")
-                round += 1
-                t.sleep(1)
-                enter()
-                print_battle_title()
                 
     def print_stats(self):
         clear()
