@@ -30,7 +30,7 @@ def Title(): # print out game header
     print(Title)
     print(f"{author:^90}\n")
 def clear():
-    os.system("clear")
+    os.system('cls' if os.name == 'nt' else 'clear')
     Title()
 def enter():
     input(f"\n[{bold}{cyan}Enter{end}] to continue\n")
