@@ -54,8 +54,11 @@ class Battle:
                     self.enemy_attack()
 
                 if self.plyr.HP <= 0: # if player dies
-                    print("\nYu gonplei ste odon.\nMay we meet again.")
-                    quit()
+                    if self.enemy.name != "dante": # doing this because i want the fight with dante to be like a practice, not deadly
+                        print("\nYu gonplei ste odon.\nMay we meet again.")
+                        quit()
+                    else:
+                        return False
 
                 round += 1 # adding onto round
                 enter()
@@ -64,11 +67,9 @@ class Battle:
         if self.plyr.exhaustion_level == 2: # if exhaustion lvl 2, disadvantage on attack roll
             draw()
             attack_roll = roll_with_disadvantage() + self.plyr.str_mod
-            print(f"{bold}You got {attack_roll}.{end}\n")
         else:
             draw()
             attack_roll = roll_d20() + self.plyr.str_mod
-            print(f"{bold}You got {attack_roll}.{end}\n")
         return attack_roll
 
     def use_dex(self):
@@ -219,7 +220,7 @@ class Battle:
         if enemy_attack_roll >= self.plyr.AC: # if attack roll successful, on to do damage
             enemy_damage_roll = diceRoll(self.enemy.equipped_weapon.num_of_sides) + self.enemy.str_mod
             self.plyr.HP -= enemy_damage_roll
-            print(f'\n{bold}{yellow}The {self.enemy.name} dealt you {enemy_damage_roll} damage{end}')
+            print(f'\n{bold}{yellow}The {self.enemy.name.title()} dealt you {enemy_damage_roll} damage{end}')
             draw()
         else:
             print(f'\n{bold}{yellow}The {self.enemy.name} missed you and dealt no damage!{end}')
