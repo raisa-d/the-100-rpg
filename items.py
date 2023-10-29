@@ -103,6 +103,7 @@ class Drink(Item):
 
 # other items
 first_aid_kit = Item('first aid kit', 'A kit with basic medical supplies', 10) ### have ability to scavenge for this or buy it?
+parachute = Item('parachute', 'A parachute scavenged from the dropship', 1)
 
 # consumable objects
 rations = Food("1 days rations", "WRITE DESC", 5)
