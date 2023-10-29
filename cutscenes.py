@@ -32,6 +32,24 @@ def launching_dropship(): # scene: launching dropship
     print("\nYour body fills with exhilaration and fear as you hurtle through\nEarth's atmosphere. The anticipation of stepping outside and\nonto the ground makes your heart pound violently.")
     enter()
 
+other_mount_weather = '''
+                              ¸...¸
+                          ¸.·´  ¸   `·.¸.·´·.
+                         :::::::::::::::::::: 
+                          `·.       ¸.·´ `·¸·´
+'''
+
+def Nyx_Jules_dialogue():
+    clear()
+    # Nyx dialogue
+    print(f'You all gather around to make a survival plan. A You\'ve seen once before--\nyou remember their name is Nyx. They say to the group,\n\n{bold}{yellow}"We need to set up camp. I don\'t know how long we can survive here,\nbut we have to give it our best shot. We just got our freedom back and\nI, for one, want to be alive to experience it."{end}')
+    enter()
+        
+    # Jules dialogue
+    clear()
+    print(f'Jules chimes in and says,\n\n{bold}{cyan}"What we really need is to get to Mount Weather. We won\'t survive\nlong otherwise on this radiation-infested planet."{end}')
+    print(f"\nOthers start saying their piece. Most don't want to walk the 20 miles there.")
+    enter()
 
 def see_Earth(): 
     clear()
@@ -65,9 +83,3 @@ def talk_to_Nyx(user):
     else:
         print("Can you believe we're actually, truly FREE?!")
     enter()
-
-
-# Changes
-'''
-1. added see_Earth, cutscene for first landing on Earth
-'''
