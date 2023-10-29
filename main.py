@@ -4,19 +4,18 @@ import random as r, time as t
 from crime import crimes
 from util import clear, enter, draw, red, underline, bold, end, white, yellow, green, cyan, gold, blue, copper, purple, orange, gray
 from cutscenes import intro
-from events import go_to_Earth, character_qualities
+from events import go_to_Earth, character_qualities, game_plan
 from items import rapier, dagger, multipurpose_knife, throwing_knives, shiv, wrench
 from items import wristband, the_fleim, rations, small_waterskin, weapons_for_sale, tek_for_sale, potions_all
-from characters import print_inventory, Player, azgeda
+from characters import print_inventory, Player, azgeda, save_game
 from battle import Battle
 
 # default booleans
 run = True # game is running
-mainMenu = True # on main menu
 play = False # playing game
 
 # booleans for locations
-in_Dropship = False
+in_BaseCamp = False
 in_MtWeather = False
 in_Polis = False
 in_TrikruWoods = False
@@ -71,6 +70,7 @@ def choose_crime(): # choose crime/create player instance
                             player.add_to_inv(rations, 2)
                             player.add_to_inv(small_waterskin, 1)
                             character_qualities.append("others mistrust you")
+                            return character_qualities
                         
                         elif crime_index == 1: # rebellion leader
                             player = Player(char_name, 12, 12, 10, 16, 3, 14, 2, 15, 2, 9, -1, 11, 0, 13, 1, 2, 0, 12, 1, throwing_knives, wristband, {})
@@ -78,7 +78,6 @@ def choose_crime(): # choose crime/create player instance
                             player.add_to_inv(wristband, 1)
                             player.add_to_inv(rations, 2)
                             player.add_to_inv(small_waterskin, 1)
-                            character_qualities.append("rebellion leader")
                         
                         elif crime_index == 2: # cannabis thief
                             player = Player(char_name, 10, 10, 10, 13, 1, 14, 2, 15, 2, 11, 0, 16, 3, 9, -1, 2, 0, 12, 2, shiv, wristband, {})
@@ -101,6 +100,7 @@ def choose_crime(): # choose crime/create player instance
                             player.add_to_inv(rations, 2)
                             player.add_to_inv(small_waterskin, 1)
                             character_qualities.append("others mistrust you")
+                            return character_qualities
 
                         return player
 
@@ -135,13 +135,13 @@ def go_to_Polis():
         print(f"{bold}Exit | {red}Save {white}| {gold}Inv {white}| {blue}Stats {white}| {copper}Marketplace{white} | {green}Converse {white}|{end}")
         action = input("> ").strip().lower()
         if action in ['x', 'exit']: # exit
-            player.save_game('load.json') # save before exiting game
+            save_game(player, 'load.json') # save before exiting game
             print("Goodbye!")
             quit()
         if action in ['i', 'inv', 'inventory']: # inventory
             print_inventory(player)
         elif action == "save": # save
-            player.save_game('load.json') # save game
+            save_game(player, 'load.json') # save game
         elif action in ['s', 'stats']: # stats
             player.print_stats()
         elif action in ['m', 'marketplace', 'market', 'store']: # marketplace
@@ -214,7 +214,7 @@ def go_to_Polis():
             t.sleep(0.5)
             print(f"\n{bold}{green}Valid{end} commands:\n['x', 'exit'\n'i', 'inv', 'inventory'\n's', 'stats'\n'm', 'marketplace', 'market', 'store'\n'c', 'converse', 'talk']")
             enter()
-def go_to_Dropship(): ###
+def go_to_BaseCamp(): ###
     pass
 def go_to_MtWeather(): ###
     pass
@@ -381,7 +381,7 @@ def go_to_Market():
                     continue
                 
         elif shop in ['l', 'leave', 'x', 'e', 'exit']:
-            player.save_game('load.json') # save when you leave marketplace so saves any purchases made
+            save_game(player, 'load.json') # save when you leave marketplace so saves any purchases made
             in_Marketplace = False
         else:
             print(f"{bold}{red}Invalid{white} command.\n\n{green}Valid{white} commands:\n{end}['s', 'shuda', 'w', 'weapons'\n'p', 'potions'\n't', 'tek', 'Tek', 'Teknology'\n'l', 'leave', 'x', 'e', 'exit'")
@@ -395,55 +395,62 @@ def go_to_ShallowValley(): ###
     pass
 
 ## RUN GAME ##
-while run:
-    while mainMenu: # in main menu
-        clear()
-        draw()
-        print("1. New Game\n2. Load Game\n3. Quit game") # menu options
-        draw()
-        choice = input("> ").strip().lower() # choice
-        if choice in ['1', 'n', 'new', 'new game']: # new game
-            intro() # calling introduction scene
-            player = choose_crime() # choose crime and return player object based on their choice
+def main():
+    mainMenu = True # default boolean
+    while run:
+        while mainMenu: # in main menu
+            clear()
+            draw()
+            print("1. New Game\n2. Load Game\n3. Quit game") # menu options
+            draw()
+            choice = input("> ").strip().lower() # choice
+            if choice in ['1', 'n', 'new', 'new game']: # new game
+                intro() # calling introduction scene
+                player = choose_crime() # choose crime and return player object based on their choice
+                
+                if player is not None: 
+                    print(f"\n{bold}>> {player.name} created <<{end}") # successfully created player
+                    enter()
+                    mainMenu = False # leave mainMenu loop
+                    play = True # switch to play loop
+                else:
+                    print("Invalid character selection. Please try again.")
+                    enter()
+                    mainMenu = True
             
-            if player is not None: 
-                print(f"\n{bold}>>{player.name} created<<{end}") # successfully created plaeyr
-                enter()
-                mainMenu = False # leave mainMenu loop
-                play = True # switch to play loop
-            else:
-                print("Invalid character selection. Please try again.")
-                enter()
-                mainMenu = True
-        
-            go_to_Earth(player) # calling go to Earth sequence
+                go_to_Earth(player) # calling go to Earth sequence
 
-        elif choice in ['2', 'l', 'load', 'load game']: # load game
-            player = Player.load_game('load.json') # assign loaded player
-            if player is not None:
-                player = player
-                print(f"Welcome back, {player.name}")
+            elif choice in ['2', 'l', 'load', 'load game']: # load game
+                player = Player.load_game('load.json') # assign loaded player
+                if player is not None:
+                    player = player
+                    print(f"Welcome back, {player.name}")
+                    enter()
+                    mainMenu = False # leave mainManu, switch to play loop
+                    play = True
+                else:
+                    print("Corrupt save file or no file found!")
+                    enter()
+                    mainMenu = True
+                    play = False
+
+            elif choice in ['3', 'q', 'quit', 'quit game', 'x']: # quit game
+                quit = input("\nAre you sure you want to quit the game (y/n)?\n> ").strip().lower()
+                if quit == "y":
+                    clear()
+                    print("Goodbye!")
+                    exit()
+
+            else: # if enter wrong thing
+                print(f"{bold}{red}Invalid{white} command.\n{green}Valid{white} commands:{end}\n['1', 'n', 'new', 'new game'\n'2', 'l', 'load', 'load game'\n'3', 'q', 'quit', 'quit game', 'x']")
                 enter()
-                mainMenu = False # leave mainManu, switch to play loop
-                play = True
-            else:
-                print("Corrupt save file or no file found!")
-                enter()
-                mainMenu = True
-                play = False
+                continue
 
-        elif choice in ['3', 'q', 'quit', 'quit game', 'x']: # quit game
-            quit = input("\nAre you sure you want to quit the game (y/n)?\n> ").strip().lower()
-            if quit == "y":
-                clear()
-                print("Goodbye!")
-                exit()
 
-        else: # if enter wrong thing
-            print(f"{bold}{red}Invalid{white} command.\n{green}Valid{white} commands:{end}\n['1', 'n', 'new', 'new game'\n'2', 'l', 'load', 'load game'\n'3', 'q', 'quit', 'quit game', 'x']")
-            enter()
-            continue
+        while play:
+            save_game(player, 'load.json') # autosave at beginning of play loop
+            game_plan(player)
+            go_to_Polis()
 
-    while play:
-        player.save_game('load.json') # autosave at beginning of play loop
-        go_to_Polis()
+if __name__ == "__main__":
+    main()
