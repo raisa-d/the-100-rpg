@@ -1,6 +1,6 @@
 import time as t, pickle, random as r
 from util import clear, enter, draw, diceRoll, bold, red, end, white, cyan, purple, underline, orange, yellow, green, blue, lime, teal, turquoise, gold, copper, gray
-from items import weapons_all, tek_all, Potion, Weapon, Item, Tek, Food, Drink, reaper_stick, dagger, butterfly_sword, rapier, knockout_gas, crossbow
+from items import weapons_all, tek_all, Potion, Weapon, Item, Tek, Food, Drink, reaper_stick, dagger, butterfly_sword, rapier, knockout_gas, crossbow, shiv
 from skill_checks import roll_with_disadvantage, roll_d20
 
 class Character():
@@ -50,7 +50,7 @@ class Player(Character):
             print(f"\n{bold}You are mildly exhausted. You must rest, eat, or\ndrink water to regain your energy. While you are exhausted,\nyou have incurred a{red} disadvantage on ability checks.{end}")
         
         elif self.exhaustion_level == 2: # lvl 2 exhaustion: disadvantage on attack rolls and saving throws
-            print(f"\n{bold}You are very exhausted. You must rest, eat, or\ndrink water to regain your energy. While you are very exhausted,  you will have a{red} disadvantage on attack rolls and saving throws.{end}")
+            print(f"\n{bold}You are very exhausted. You must rest, eat, or\ndrink water to regain your energy. While you are very exhausted,\nyou will have a{red} disadvantage on attack rolls and saving throws.{end}")
         
         elif self.exhaustion_level == 3: # lvl 3 exhaustion: HP max halved
             self.maxHP = self.maxHP/2
@@ -145,24 +145,6 @@ class Player(Character):
                     print(f"{red}{bold}You do not have your {selected_item.name} equipped right now.{end}")
             else: # if there is no tek equipped
                 print(f"{red}{bold}You have no tek equipped right now.{end}") 
-                
-    def print_stats(self):
-        clear()
-        print(f"{bold}{underline}{self.name}{end}")
-        print(f"\n{lime}{bold}Health{white}\t\t  | {self.HP}/{self.maxHP} 🩸\n{gold}Gold{white}\t\t  | {self.gp}")
-        print(f"{cyan}Proficiency Bonus{white} | {self.prof_bonus}")
-        print(f"{teal}XP {white}\t\t  | {self.xp}")
-        print(f"{turquoise}Armor Class {white}\t  | {self.AC}")
-        print(f"{gray}Exhaustion\t  {white}| {self.exhaustion_level}{end}")
-        draw()
-        print(f"{bold}\n\t   Ability    Modifier")
-        print(f"{red}Strength{white}     | {self.str_ability} | {self.str_mod}")
-        print(f"{orange}Dexterity{white}    | {self.dex_ability} | {self.dex_mod}")
-        print(f"{yellow}Constitution{white} | {self.const_ability} | {self.const_mod}")
-        print(f"{green}Intelligence{white} | {self.int_ability} | {self.int_mod}")
-        print(f"{blue}Wisdom{white}\t     | {self.wis_ability}  | {self.wis_mod}")
-        print(f"{purple}Charisma{white}     | {self.char_ability} | {self.char_mod}")
-        enter()
 
     @staticmethod
     def load_game(filename): ### FIX: There is a problem when loading from a new game, doesn't recognize self
@@ -183,6 +165,30 @@ class Enemy(Character):
         self.drop_item = drop_item
         self.drop_GP = drop_GP
 
+class NPC(Character):
+    def __init__(self, name, HP, maxHP, AC, str_mod, dex_mod, drop_item, drop_GP, equipped_weapon = None):
+        super().__init__(name, HP, maxHP, AC, str_mod, dex_mod, equipped_weapon)
+        self.drop_item = drop_item
+        self.drop_GP = drop_GP
+
+def print_stats(user):
+        clear()
+        print(f"{bold}{underline}{user.name}{end}")
+        print(f"\n{lime}{bold}Health{white}\t\t  | {user.HP}/{user.maxHP} 🩸\n{gold}Gold{white}\t\t  | {user.gp}")
+        print(f"{cyan}Proficiency Bonus{white} | {user.prof_bonus}")
+        print(f"{teal}XP {white}\t\t  | {user.xp}")
+        print(f"{turquoise}Armor Class {white}\t  | {user.AC}")
+        print(f"{gray}Exhaustion\t  {white}| {user.exhaustion_level}{end}")
+        draw()
+        print(f"{bold}\n\t   Ability    Modifier")
+        print(f"{red}Strength{white}     | {user.str_ability} | {user.str_mod}")
+        print(f"{orange}Dexterity{white}    | {user.dex_ability} | {user.dex_mod}")
+        print(f"{yellow}Constitution{white} | {user.const_ability} | {user.const_mod}")
+        print(f"{green}Intelligence{white} | {user.int_ability} | {user.int_mod}")
+        print(f"{blue}Wisdom{white}\t     | {user.wis_ability}  | {user.wis_mod}")
+        print(f"{purple}Charisma{white}     | {user.char_ability} | {user.char_mod}")
+        enter()
+
 # enemy objects
 ### THINK ABOUT adding these attributes to Enemy: list of different attack options, 4 options for damage they can do to player (either damage can be randomly chosen or we give them str/dex modifiers for it), death (a unique string for how each enemy dies)
 reaper = Enemy('reaper', 15, 15, 12, 1, 1, reaper_stick, 3, dagger)
@@ -192,6 +198,9 @@ mountain_man = Enemy('mountain man', 18, 18, 15, 2, 2, knockout_gas, 10, crossbo
 random_enemy_list = [reaper, azgeda] # list of enemies that randomly spawn
 random_enemy = r.choice(random_enemy_list) 
 enemies_all = [reaper, azgeda, mountain_man]
+
+# NPC objects
+dante = NPC('dante', 15, 15, 15, 3, 2, shiv, 10, rapier)
 
 def save_game(user, filename): # writing user to a file 
         try:
@@ -307,8 +316,3 @@ def print_inventory(player):
         else:
             print(f"{bold}{red}Invalid command.\n{green}Valid commands:{white}\n['l', 'leave', 'x', 'exit'\nor the corresponding number to the inventory item you want to select]{end}")
             enter()
-
-# Changes to characters.py since last github update:
-'''
-1. 
-'''
