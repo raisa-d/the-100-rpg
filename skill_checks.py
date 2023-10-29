@@ -21,15 +21,8 @@ def roll_d20_with_narration():
 
 def disadvantage_with_narration():
     print("\nDue to exhaustion, you have a disadvantage and will use the lower of two dice rolls.")
-    print("\nRolling first d20...")
-    t.sleep(0.5)
     roll1 = diceRoll(20)
-    print(f"\nYou rolled a {roll1}")
-    print("\nRolling second d20...")
-    t.sleep(0.5)
     roll2 = diceRoll(20)
-    print(f"\nYou rolled a {roll2}")
-    t.sleep(0.5)
     final_roll = min(roll1, roll2) # use the lower of the two rolls
     print(f"{bold}\nYou got {final_roll}.{end}\n")
     return final_roll
@@ -40,27 +33,31 @@ def intelligence_check(user, difficulty_class): # pass in player and difficulty 
         roll = disadvantage_with_narration()
     else: # if not exhaustion lvl 1, no disadvantage to ability check rolls
         roll = roll_d20_with_narration()
-    print("Adding your intelligence modifier...")
-    t.sleep(1)
     int_check = roll + user.int_mod
     print(f"\n{bold}You got {int_check}.{end}")
     
     if int_check > difficulty_class:
         print(f"\n{bold}{green}You passed the skill check!{end}")
-        #enter()
         return True
     else:
         print(f"\n{red}{bold}You did not pass the skill check.{end}")
-        enter()
         return False
 
 # wisdom check --> animal handling, insight, medicine, perception, survival
 def wisdom_check(user, DC):
-    pass
+    roll = roll_d20() + user.wis_mod # add wisdom modifier to d20 roll
+    if roll > DC: # passed skill check
+        return True
+    else: # did not pass skill check
+        return False
 
 # charisma check --> deception, intimidation, performance, persuasion
 def charisma_check(user, DC):
-    pass
+    roll = roll_d20() + user.char_mod # add wisdom modifier to d20 roll
+    if roll > DC: # passed skill check
+        return True
+    else: # did not pass skill check
+        return False
 
 # strength skill check --> athletics
 def strength_check(user, DC):
