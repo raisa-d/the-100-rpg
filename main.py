@@ -123,7 +123,7 @@ def choose_crime(): # choose crime/create player instance
             clear()
             continue
 
-def go_to_Polis():
+def go_to_Polis(user):
     clear()
     print(f"As you approach the imposing gates of {bold}{yellow}Polis{end} a sense of wonder\nand trepidation washes over you.\nThe ancient city stands as a testament to resilience in\na world devastated by nuclear catastrophe.\n")
     input(f"[{cyan}{bold}Enter{end}] to walk through the gates\n")
@@ -135,17 +135,17 @@ def go_to_Polis():
         print(f"{bold}Exit | {red}Save {white}| {gold}Inv {white}| {blue}Stats {white}| {copper}Marketplace{white} | {green}Converse {white}|{end}")
         action = input("> ").strip().lower()
         if action in ['x', 'exit']: # exit
-            save_game(player, 'load.json') # save before exiting game
+            save_game(user, 'load.json') # save before exiting game
             print("Goodbye!")
             quit()
         if action in ['i', 'inv', 'inventory']: # inventory
-            print_inventory(player)
+            print_inventory(user)
         elif action == "save": # save
-            save_game(player, 'load.json') # save game
+            save_game(user, 'load.json') # save game
         elif action in ['s', 'stats']: # stats
-            player.print_stats()
+            user.print_stats()
         elif action in ['m', 'marketplace', 'market', 'store']: # marketplace
-            go_to_Market()
+            go_to_Market(user)
         
         elif action in ['c', 'converse', 'talk']: # converse
             while True:
@@ -154,8 +154,8 @@ def go_to_Polis():
                 response = input('\n> ').strip().lower()
                 if response is not None:
                     if response in ['azgeda gonas', 'azgeda', 'a', 'gonas', 'gona', 'g']:
-                        if azgeda.HP <= 0: azgeda.HP = azgeda.maxHP # if you already fought them and their HP is 0, set it to max again so player can battle again
-                        azgeda_battle = Battle(player, azgeda) # create instance of Battle class
+                        if azgeda.HP <= 0: azgeda.HP = azgeda.maxHP # if you already fought them and their HP is 0, set it to max again so user can battle again
+                        azgeda_battle = Battle(user, azgeda) # create instance of Battle class
                         result = azgeda_battle.start_battle()
                         
                         if result: # if you defeat the enemy
@@ -176,7 +176,7 @@ def go_to_Polis():
                             quit()
 
                     elif response in ['woman', 'w', 'elderly woman', 'elder', 'fleimkepa', 'f', 'flamekeeper']:
-                        if player.name.lower() == 'fleimkepa': ### change this interaction since fleimkepa is no longer a character choice
+                        if user.name.lower() == 'fleimkepa': ### change this interaction since fleimkepa is no longer a character choice
                             print('You walk closer to the woman and realize it is Luna,\nthe eldest remaining fleimkepa.\n')
                             t.sleep(1)
                             print("\"Young Fleimkepa, it is up to you now to\nprotect both the Fleim and the Heda who bears it.\nMeet me at the Temple so I may give you something.\"")
@@ -190,7 +190,7 @@ def go_to_Polis():
                             yes_or_no = input("\n> ").strip().lower()
                             if yes_or_no in ['yes', 'y']:
                                 print('She takes the flame, puts it in a black tin, and places it in your open hand.') ### write better narrative and add flame to inventory
-                                player.add_to_inv(the_fleim, 1)
+                                user.add_to_inv(the_fleim, 1)
                             elif yes_or_no in ['no', 'n']:
                                 print('You are no fleimkepa. You are a disgrace to our people.') ### add narrative here
                                 enter()
@@ -214,13 +214,14 @@ def go_to_Polis():
             t.sleep(0.5)
             print(f"\n{bold}{green}Valid{end} commands:\n['x', 'exit'\n'i', 'inv', 'inventory'\n's', 'stats'\n'm', 'marketplace', 'market', 'store'\n'c', 'converse', 'talk']")
             enter()
+            
 def go_to_BaseCamp(): ###
     pass
 def go_to_MtWeather(): ###
     pass
 def go_to_TrikruWoods(): ###
     pass
-def go_to_Market(): 
+def go_to_Market(user): 
     in_Marketplace = True
     while in_Marketplace:
         clear()
@@ -232,7 +233,7 @@ def go_to_Market():
             while True:
                 clear()
                 print(f'{bold}{copper}Shuda Kofgeda{end}\n') ### ADD weapons shop
-                print(f"{gold}Your Gold Pieces: {player.gp}{end}\n")
+                print(f"{gold}Your Gold Pieces: {user.gp}{end}\n")
                 # printing list of weapons
                 print(f"{bold}Item\t\t\tPrice{end}\n")
                 count = 1
@@ -257,10 +258,10 @@ def go_to_Market():
                     print(f"{weapon_choice.name.title()}\nBuy | Read Desc | Exit")
                     answer = input("\n> ").strip().lower()
                     if answer in ['b', 'buy']:
-                        if player.gp >= weapon_choice.price:
-                            player.add_to_inv(weapon_choice, 1) # add item to player inventory
+                        if user.gp >= weapon_choice.price:
+                            user.add_to_inv(weapon_choice, 1) # add item to user inventory
                             print(f'{green}>>{weapon_choice.name.title()} added to inventory<<{end}')
-                            player.gp -= weapon_choice.price # take money out of account
+                            user.gp -= weapon_choice.price # take money out of account
                             enter()
                             continue
                         else: # if not enough money in account
@@ -285,7 +286,7 @@ def go_to_Market():
             while True:
                 clear()
                 print(f'{bold}{purple}Potions Kofgeda{end}\n')
-                print(f"{gold}Your Gold Pieces: {player.gp}{end}\n")
+                print(f"{gold}Your Gold Pieces: {user.gp}{end}\n")
                 print(f"{bold}Item\t\t\tPrice{end}\n")
                 count = 1
                 for p in potions_all:
@@ -308,10 +309,10 @@ def go_to_Market():
                     print(f"{potion_choice.name.title()}\nBuy | Read Desc | Exit")
                     answer = input("\n> ").strip().lower()
                     if answer in ['b', 'buy']:
-                        if player.gp >= potion_choice.price:
-                            player.add_to_inv(potion_choice, 1)
+                        if user.gp >= potion_choice.price:
+                            user.add_to_inv(potion_choice, 1)
                             print(f'{green}>>{potion_choice.name.title()} added to inventory<<{end}')
-                            player.gp -= potion_choice.price
+                            user.gp -= potion_choice.price
                             enter()
                             continue
                         else: 
@@ -334,7 +335,7 @@ def go_to_Market():
             while True:
                 clear()
                 print(f'{bold}{blue}Tek Kofgeda{end}\n') ### ADD Tek shop
-                print(f"{gold}Your Gold Pieces: {player.gp}{end}\n")
+                print(f"{gold}Your Gold Pieces: {user.gp}{end}\n")
                 print(f"{bold}Item\t\t\tPrice{end}\n")
                 count = 1
                 for tek in tek_for_sale:
@@ -357,10 +358,10 @@ def go_to_Market():
                     print(f"{tek_choice.name.title()}\nBuy | Read Desc | Exit")
                     answer = input("\n> ").strip().lower()
                     if answer in ['b', 'buy']:
-                        if player.gp >= tek_choice.price:
-                            player.add_to_inv(tek_choice, 1)
+                        if user.gp >= tek_choice.price:
+                            user.add_to_inv(tek_choice, 1)
                             print(f'{green}>>{tek_choice.name.title()} added to inventory<<{end}')
-                            player.gp -= tek_choice.price
+                            user.gp -= tek_choice.price
                             enter()
                             continue
                         else: 
@@ -381,7 +382,7 @@ def go_to_Market():
                     continue
                 
         elif shop in ['l', 'leave', 'x', 'e', 'exit']:
-            save_game(player, 'load.json') # save when you leave marketplace so saves any purchases made
+            save_game(user, 'load.json') # save when you leave marketplace so saves any purchases made
             in_Marketplace = False
         else:
             print(f"{bold}{red}Invalid{white} command.\n\n{green}Valid{white} commands:\n{end}['s', 'shuda', 'w', 'weapons'\n'p', 'potions'\n't', 'tek', 'Tek', 'Teknology'\n'l', 'leave', 'x', 'e', 'exit'")
@@ -449,8 +450,8 @@ def main():
 
         while play:
             save_game(player, 'load.json') # autosave at beginning of play loop
-            game_plan(player)
-            go_to_Polis()
+            #game_plan(player)
+            go_to_Polis(player)
 
 if __name__ == "__main__":
     main()
