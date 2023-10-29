@@ -143,7 +143,7 @@ def go_to_Earth(user):
     see_Earth() # see earth for the first time
 
 def explore_woods(): ### CODE & WRITE THIS
-    print("\n[Placeholder: You explore the woods.]") 
+    print("\n[Placeholder: You explore the woods.]\nTaking you to Polis...") 
     enter()
 
 def fight_dante(user, target):
@@ -314,6 +314,7 @@ def game_plan(user, target): # making game plan and executing
                 
                 elif choice[0] in ["e"]: # if choose explore
                     explore_woods()
+                    break
                 
                 elif choice[0] == "b": # if choose set up base camp
                     set_up_basecamp(user, target)
