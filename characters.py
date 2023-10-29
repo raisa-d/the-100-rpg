@@ -47,10 +47,10 @@ class Player(Character):
     
     def apply_exhaustion_penalty(self): # method to handle exhaustion penalties
         if self.exhaustion_level == 1: # lvl 1 exhaustion: disadvantage on ability checks
-            print("\nUntil you rest, eat, or drink, you are mildly exhausted and have incurred a disadvantage on ability checks.")
+            print(f"\n{bold}You are mildly exhausted. You must rest, eat, or\ndrink water to regain your energy. While you are exhausted,\nyou have incurred a{red} disadvantage on ability checks.{end}")
         
         elif self.exhaustion_level == 2: # lvl 2 exhaustion: disadvantage on attack rolls and saving throws
-            print("\nUntil you are less exhausted, you will have a disadvantage on attack rolls and saving throws")
+            print(f"\n{bold}You are very exhausted. You must rest, eat, or\ndrink water to regain your energy. While you are very exhausted,  you will have a{red} disadvantage on attack rolls and saving throws.{end}")
         
         elif self.exhaustion_level == 3: # lvl 3 exhaustion: HP max halved
             self.maxHP = self.maxHP/2
@@ -164,15 +164,6 @@ class Player(Character):
         print(f"{purple}Charisma{white}     | {self.char_ability} | {self.char_mod}")
         enter()
 
-    def save_game(self, filename): # writing self to a file 
-        try:
-            with open(filename, "wb") as file:
-                pickle.dump(self, file)
-            print(f'{green}>>game saved<<{end}')
-            t.sleep(0.5)
-        except Exception as e:
-            print(f"{red}Error saving game: {str(e)}{end}")
-
     @staticmethod
     def load_game(filename): ### FIX: There is a problem when loading from a new game, doesn't recognize self
         try:
@@ -201,6 +192,15 @@ mountain_man = Enemy('mountain man', 18, 18, 15, 2, 2, knockout_gas, 10, crossbo
 random_enemy_list = [reaper, azgeda] # list of enemies that randomly spawn
 random_enemy = r.choice(random_enemy_list) 
 enemies_all = [reaper, azgeda, mountain_man]
+
+def save_game(user, filename): # writing user to a file 
+        try:
+            with open(filename, "wb") as file:
+                pickle.dump(user, file)
+            print(f'{green}>> game saved <<{end}')
+            t.sleep(0.5)
+        except Exception as e:
+            print(f"{red}Error saving game: {str(e)}{end}")
 
 def pretty_print(player): # just prints out the inventory pretty
     clear()
@@ -307,3 +307,8 @@ def print_inventory(player):
         else:
             print(f"{bold}{red}Invalid command.\n{green}Valid commands:{white}\n['l', 'leave', 'x', 'exit'\nor the corresponding number to the inventory item you want to select]{end}")
             enter()
+
+# Changes to characters.py since last github update:
+'''
+1. 
+'''
