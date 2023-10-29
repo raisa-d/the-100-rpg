@@ -3,11 +3,11 @@
 import random as r, time as t
 from crime import crimes
 from util import clear, enter, draw, red, underline, bold, end, white, yellow, green, cyan, gold, blue, copper, purple, orange, gray
-from cutscenes import intro
+from cutscenes import intro, Nyx_Jules_dialogue
 from events import go_to_Earth, character_qualities, game_plan
 from items import rapier, dagger, multipurpose_knife, throwing_knives, shiv, wrench
 from items import wristband, the_fleim, rations, small_waterskin, weapons_for_sale, tek_for_sale, potions_all
-from characters import print_inventory, Player, azgeda, save_game
+from characters import print_inventory, Player, azgeda, save_game, dante
 from battle import Battle
 
 # default booleans
@@ -214,7 +214,7 @@ def go_to_Polis(user):
             t.sleep(0.5)
             print(f"\n{bold}{green}Valid{end} commands:\n['x', 'exit'\n'i', 'inv', 'inventory'\n's', 'stats'\n'm', 'marketplace', 'market', 'store'\n'c', 'converse', 'talk']")
             enter()
-            
+
 def go_to_BaseCamp(): ###
     pass
 def go_to_MtWeather(): ###
@@ -420,6 +420,7 @@ def main():
                     mainMenu = True
             
                 go_to_Earth(player) # calling go to Earth sequence
+                Nyx_Jules_dialogue() # Nyx/Jules dialogue
 
             elif choice in ['2', 'l', 'load', 'load game']: # load game
                 player = Player.load_game('load.json') # assign loaded player
@@ -450,7 +451,7 @@ def main():
 
         while play:
             save_game(player, 'load.json') # autosave at beginning of play loop
-            #game_plan(player)
+            game_plan(player, dante)
             go_to_Polis(player)
 
 if __name__ == "__main__":
