@@ -1,9 +1,9 @@
 import time as t
-from util import clear, enter, bold, red, white, green, orange, end, draw, gray, orange, cyan, yellow, turquoise, blue, purple, lime
+from util import clear, enter, bold, red, white, green, orange, end, draw, gold, orange, cyan, yellow, turquoise, blue, purple, lime, copper
 from items import multipurpose_knife, throwing_knives, shiv, dagger, wrench, health_potion, parachute, rapier
 from minigames import code_decryption_minigame
 from cutscenes import get_to_dropship, launching_dropship, see_Earth, talk_to_Nyx
-from skill_checks import intelligence_check, const_saving_throw, wisdom_check, charisma_check
+from skill_checks import intelligence_check, const_saving_throw, wisdom_check, charisma_check, skill_check
 from characters import print_inventory, Player, save_game, NPC, print_stats
 from battle import Battle
 
@@ -21,23 +21,23 @@ def taken_to_dropship(user):
         if speak_up == "a": # if ask where they're taking you
             print(f'{bold}The guard shoots you a menacing expression and grunts at you.')
             t.sleep(1)
-            if multipurpose_knife in user.inv: # if crime was stealing vital stuff -- people don't trust you
+            if user.crime_num == 0: # if crime was stealing vital stuff -- people don't trust you
                 print(f'\nYou make eye contact with the prisoner to your left and try to\nnonverbally communicate "What the **** is going on?"\n\nThe prisoner gives you some side-eye.{end}')
                 enter()
                 break
-            elif throwing_knives in user.inv: # if crime: leading a rebellion
+            elif user.crime_num == 1: # if crime: leading a rebellion
                 print(f'\nYou exchange a glance with another prisoner, who mouths to you\nin a panic: "They\'re sending us...down.{end}"') ### this NPC was arrested for treason? define who these prisoners are
                 enter()
                 break
-            elif shiv in user.inv: # if crime: cannabis thievery
+            elif user.crime_num == 2: # if crime: cannabis thievery
                 print(f'\nYou realize you\'re still a little bit baked from smoking\nthe last of the stash you had hidden in the air ducts in your cell.\n\nYou begin to realize you have no clue what\'s going on.{end}') ### 
                 enter()
                 break
-            elif dagger in user.inv: # if crime: 2nd child
+            elif user.crime_num == 3: # if crime: 2nd child
                 print(f'\nAnother prisoner tries to get your attention\nand has a panicked look on their face.{end}') ###
                 enter()
                 break
-            elif wrench in user.inv: # if crime: falsely accused
+            elif user.crime_num == 4: # if crime: falsely accused
                 print(f'\nYou look to your right and see a prisoner nearby\nstruggling to get out of a guard\'s grasp{end}')
                 enter()
                 break
@@ -65,7 +65,8 @@ def dropship_malfunction(user):
             
             # investigation skill check
             print(f"\n{user.name} will use an investigation skill check to assess the malfunction")
-            passed = intelligence_check(user, 8) # will return True or False about whether passed the skill check or not
+            passed = skill_check(user, 8, "int", narration=True)
+            # passed = intelligence_check(user, 8) ###TESTING 
             if passed:
                 print("\nYou have successfully identified a damaged component in the dropship's propulsion system.")
                 enter()
@@ -85,6 +86,7 @@ def dropship_malfunction(user):
                     return True
                 else: # if did not fix system
                     print(f"\n{red}{bold}You were unsuccessful at repairing the propulsion system.\nThe alarm blares.\nYou brace for impact.{end}") ### add that they become exhausted from having tried
+                    enter()
                     brace_for_impact(user)
                     return False
         
@@ -162,9 +164,10 @@ def fight_dante(user, target):
         target.HP = target.maxHP # setting Dante's HP back to full
         enter()
     else: # if target defeats you
-        print('\nYou narrowly escape with your life.')
+        print('\nYou narrowly escape with your life, thanks to Dante\'s mercy.')
         user.exhaustion_level += 1 # become exhausted from the fight
         target.HP = target.maxHP 
+        user.HP = 1
         enter()
                 
 
@@ -185,7 +188,8 @@ def talk_to_prisoners(user, target):
         if dante[0] == "f": # fight
             fight_dante(user, target)
         else: # say "you"
-            charismatic = charisma_check(user, 18)
+            charismatic = skill_check(user, 17, "char", narration=False)
+            #charismatic = charisma_check(user, 18) ###TESTING
             if charismatic: # scenario that happens if you pass charisma check
                 pass ###
             else: # what happens if you fail charisma check
@@ -214,7 +218,8 @@ def check_dropship(user):
     while True:
         clear()
         print(f"\nYou look around the dropship for materials you can use to make a tent,\nas you'll need a place to sleep tonight.\n\n{bold}Let's do an investigation check\nto see what {user.name} notices.{end}")
-        passed = intelligence_check(user, 6)
+        passed = skill_check(user, 6, "int", narration=True)
+        # passed = intelligence_check(user, 6) ###TESTING
         enter()
         if passed:
             clear()
@@ -228,7 +233,8 @@ def check_dropship(user):
             
             # player tries to build tent
             clear()
-            passed_survival_check = wisdom_check(user, 9)
+            passed_survival_check = skill_check(user, 9, "wis", narration=False)
+            # passed_survival_check = wisdom_check(user, 9)###TESTING
             if passed_survival_check:
                 user.remove_from_inv(parachute, 1)
                 input("[Enter] to build tent\n")
@@ -327,3 +333,13 @@ def game_plan(user, target): # making game plan and executing
                 print(f"{red}{bold}Invalid command.\n{green}Valid commands:\n{white}'x'\n'save', 's'\nany word that starts with 'i'\n'stats', 'stat'\n't', 'n'\nanything that starts with 'e'\nanything that starts with 'b'")
                 enter()
                 continue
+        
+
+    # after sequence is completed and the base camp is successfully set up, do
+    # --> setting_up_camp.append['completed']. save setting_up_camp to save file. maybe have to add setting_up_camp to player?
+    # --> and only run this if completed is NOT in setting_up_camp
+
+# Changes to events.py since last github update:
+'''
+1. 
+'''
