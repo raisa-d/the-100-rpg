@@ -26,7 +26,7 @@ gray = "\033[1;30m"
 def Title(): # print out game header
     title = "The 100 Role Player Game"
     Title = f"{italic}{bold}{green}{title:^80}{end}"
-    author = f"{purple}by @RaiBread{end}"
+    author = f"{purple}by @rai__bread{end}"
     print(Title)
     print(f"{author:^90}\n")
 def clear():
