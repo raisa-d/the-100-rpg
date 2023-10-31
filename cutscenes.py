@@ -1,5 +1,5 @@
 import time as t
-from util import clear, enter, bold, red, cyan, end, gold, green
+from util import clear, enter, bold, red, cyan, end, gold, green, yellow
 
 def intro(): # scene: get introduced to the game and choose your character
     clear()
