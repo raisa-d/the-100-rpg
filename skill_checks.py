@@ -11,68 +11,52 @@ def roll_d20():
     roll = diceRoll(20)
     return roll
 
-def roll_d20_with_narration():
-    roll = diceRoll(20)
-    print("\nRolling d20...")
-    t.sleep(0.5)
-    print(f"\nYou rolled {roll}.\n")
-    t.sleep(0.5)
-    return roll
-
 def disadvantage_with_narration():
-    print("\nDue to exhaustion, you have a disadvantage and will use the lower of two dice rolls.")
+    print("\nDue to exhaustion, you have a disadvantage.")
     roll1 = diceRoll(20)
     roll2 = diceRoll(20)
     final_roll = min(roll1, roll2) # use the lower of the two rolls
-    print(f"{bold}\nYou got {final_roll}.{end}\n")
     return final_roll
 
-# intelligence skill check --> investigation, history, arcana, nature, religion
-def intelligence_check(user, difficulty_class): # pass in player and difficulty class of what you're trying to do
-    if user.exhaustion_level == 1: # if exhaustion level 1, roll with disadvantage
-        roll = disadvantage_with_narration()
-    else: # if not exhaustion lvl 1, no disadvantage to ability check rolls
-        roll = roll_d20_with_narration()
-    int_check = roll + user.int_mod
-    print(f"\n{bold}You got {int_check}.{end}")
-    
-    if int_check > difficulty_class:
-        print(f"\n{bold}{green}You passed the skill check!{end}")
-        return True
-    else:
-        print(f"\n{red}{bold}You did not pass the skill check.{end}")
-        return False
+def skill_check(user, DC, skill_name, narration=None): # skill_name will be the shortened version (i.e., "str", "dex", "int", "char", "wis"). narration is boolean for whether it should be narrated or not
+        
+        # if exhaustion level 1, roll with disadvantage
+        if user.exhaustion_level == 1:
+            if narration == True:
+                roll = disadvantage_with_narration()
+            else:
+                roll = roll_with_disadvantage()
+        
+        # if not exhaustion lvl 1, no disadvantage to ability check rolls
+        else:
+            if narration == True:
+                roll = roll_d20()
+            else:
+                roll = roll_d20()
+        
+        # adding ability modifier to roll
+        if skill_name == "str":
+            skill_check = roll + user.str_mod
+        elif skill_name == "dex":
+            skill_check = roll + user.dex_mod
+        elif skill_name == "int":
+            skill_check = roll + user.int_mod
+        elif skill_name == "wis":
+            skill_check = roll + user.wis_mod
+        elif skill_name == "char":
+            skill_check = roll + user.char_mod
 
-# wisdom check --> animal handling, insight, medicine, perception, survival
-def wisdom_check(user, DC):
-    roll = roll_d20() + user.wis_mod # add wisdom modifier to d20 roll
-    if roll > DC: # passed skill check
-        return True
-    else: # did not pass skill check
-        return False
-
-# charisma check --> deception, intimidation, performance, persuasion
-def charisma_check(user, DC):
-    roll = roll_d20() + user.char_mod # add wisdom modifier to d20 roll
-    if roll > DC: # passed skill check
-        return True
-    else: # did not pass skill check
-        return False
-
-# strength skill check --> athletics
-def strength_check(user, DC):
-    pass
-
-# dexterity skill check --> acrobatics, sleight of hand, stealth
-def dex_check(user, DC):
-    pass
+        if skill_check > DC: # pass skill check
+            return True
+        else: # fail skill check
+            return False
 
 # constitution saving throw
 def const_saving_throw(user, DC):
     if user.exhaustion_level == 2: # if exhaustion level 2, disadvantage on saving throws
         roll = disadvantage_with_narration()
     else:
-        roll = roll_d20_with_narration()
+        roll = roll_d20()
     t.sleep(1)
     if user.crime_num == 3: # second child has constitution proficiency and therefore adds proficiency bonus and constitution modifier
         print("Adding your constitution modifier and proficiency bonus...")
