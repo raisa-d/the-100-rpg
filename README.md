@@ -14,7 +14,7 @@
 
 ## Development Status
 
-As of 10/25/2023, the game is in the early stages of development. Key functionalities such as the effects of Tek and the battle system and other items are being fleshed out & implemented. In-game items and storyline flowchart are also in early stages of development. Sections marked with "###" indicate areas that are still under construction.
+As of 10/30/2023, the game is in the early stages of development. Key functionalities such as the effects of Tek and the battle system and other items are being fleshed out & implemented. In-game items and storyline flowchart are also in early stages of development. Sections marked with "###" indicate areas that are still under construction.
 
 NOTE: main.py is always published with extensive notes regarding what has changed since the last github update, bugs, next steps, and ideas to build on. 
 Please look at those notes if you want to see more of an in-depth play-by-play of game progress!
@@ -50,8 +50,8 @@ To get started, follow these steps:
 
 ## Bugs
 
-Currently, there is one known bug: 
-1. os.system("clear") does not work on Windows-- for Windows, it would need to be os.system("cls")
+Currently, there is one known bug:
+1. In the minigame to fix the dropship propulsion system, sometimes it will still ask user for input after they already solved the code completely. In this case, it requires user to click enter before it will say it is correct.
 
 The game developer is working to resolve these issues.
 
