@@ -47,7 +47,7 @@ class Player(Character):
     
     def apply_exhaustion_penalty(self): # method to handle exhaustion penalties
         if self.exhaustion_level == 1: # lvl 1 exhaustion: disadvantage on ability checks
-            print(f"\n{bold}You are mildly exhausted. You must rest, eat, or\ndrink water to regain your energy. While you are exhausted,\nyou have incurred a{red} disadvantage on ability checks.{end}")
+            print(f"\nYou are mildly exhausted. You must rest, eat, or\ndrink water to regain your energy. While you are exhausted,\nyou have incurred a{red} disadvantage on ability checks.{end}")
         
         elif self.exhaustion_level == 2: # lvl 2 exhaustion: disadvantage on attack rolls and saving throws
             print(f"\n{bold}You are very exhausted. You must rest, eat, or\ndrink water to regain your energy. While you are very exhausted,\nyou will have a{red} disadvantage on attack rolls and saving throws.{end}")
