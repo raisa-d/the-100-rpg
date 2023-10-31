@@ -3,7 +3,7 @@ from util import clear, enter, bold, red, white, green, orange, end, draw, gold,
 from items import multipurpose_knife, throwing_knives, shiv, dagger, wrench, health_potion, parachute, rapier
 from minigames import code_decryption_minigame
 from cutscenes import get_to_dropship, launching_dropship, see_Earth, talk_to_Nyx
-from skill_checks import intelligence_check, const_saving_throw, wisdom_check, charisma_check, skill_check
+from skill_checks import const_saving_throw, skill_check
 from characters import print_inventory, Player, save_game, NPC, print_stats
 from battle import Battle
 
@@ -333,13 +333,3 @@ def game_plan(user, target): # making game plan and executing
                 print(f"{red}{bold}Invalid command.\n{green}Valid commands:\n{white}'x'\n'save', 's'\nany word that starts with 'i'\n'stats', 'stat'\n't', 'n'\nanything that starts with 'e'\nanything that starts with 'b'")
                 enter()
                 continue
-        
-
-    # after sequence is completed and the base camp is successfully set up, do
-    # --> setting_up_camp.append['completed']. save setting_up_camp to save file. maybe have to add setting_up_camp to player?
-    # --> and only run this if completed is NOT in setting_up_camp
-
-# Changes to events.py since last github update:
-'''
-1. 
-'''
