@@ -58,5 +58,5 @@ def code_decryption_minigame():
         if code_solved: # if solve code
             return True
 
-        if lives <= 0 and code_solved == False:
+        if lives < 1 and code_solved == False:
             return False
