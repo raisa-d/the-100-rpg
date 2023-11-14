@@ -111,7 +111,7 @@ class Battle:
                 # attack and damage rolls
                 if attack_roll >= self.enemy.AC: # if attack roll successful, on to do damage
                     damage_roll = diceRoll(self.plyr.equipped_weapon.num_of_sides) + self.plyr.str_mod
-                    self.enemy.HP -= damage_roll
+                    self.enemy.lose_hp(damage_roll)
                     print(f'{bold}{lime}You are adept with your {self.plyr.equipped_weapon.name} and deal the {self.enemy.name} {damage_roll} damage!{end}')
                     draw()
                     break
@@ -142,11 +142,11 @@ class Battle:
                     
                     if self.plyr.crime_num == 4: #  for Falsely Accused criminal
                         damage_roll = diceRoll(4) + 3 # 1d4 + 3 damage
-                        self.enemy.HP -= damage_roll # subtract damage from enemy's HP
+                        self.enemy.lose_hp(damage_roll) # subtract damage from enemy's HP
                     
                     else: # other characters' damage is 1 + their strength modifier
                         damage_roll = 1 + self.plyr.str_mod
-                        self.enemy.HP -= damage_roll # subtract damage from enemy's HP
+                        self.enemy.lose_hp(damage_roll) # subtract damage from enemy's HP
                     
                     # print fight method
                     print(f'{bold}{lime}You deal the {self.enemy.name} {damage_roll} damage!{end}')
@@ -179,8 +179,8 @@ class Battle:
                 elif reaction[0] == "h": # if choose heal wounds
                     possible_HP = ["1", "2", "3"]
                     HP_gained = r.choice(possible_HP) # randomly choose how much they heal
-                    
-                    self.plyr.HP += int(HP_gained) # give player the HP
+                    # add HP to player
+                    self.plyr.gain_health(int(HP_gained))
                     draw()
                     print(f"\n{green}{bold}You gained back {HP_gained} HP 🩸{end}")
                     break
@@ -188,8 +188,7 @@ class Battle:
                 elif reaction[0] in ["s", "g"]: # if choose steal gold
                     possible_amounts = [1, 2, 3, 4, 5]
                     amt_stolen = r.choice((possible_amounts)) # randomly choose how much GP you steal between 1 and 5
-                    
-                    self.plyr.gp += int(amt_stolen) # give player the GP
+                    self.plyr.gain_gp(int(amt_stolen)) # give player the GP
                     draw()
                     print(f"\n{bold}{gold}You stole {amt_stolen} GP!{end}")
                     break
@@ -219,7 +218,7 @@ class Battle:
             
         if enemy_attack_roll >= self.plyr.AC: # if attack roll successful, on to do damage
             enemy_damage_roll = diceRoll(self.enemy.equipped_weapon.num_of_sides) + self.enemy.str_mod
-            self.plyr.HP -= enemy_damage_roll
+            self.plyr.lose_health(enemy_damage_roll)
             print(f'\n{bold}{yellow}The {self.enemy.name.title()} dealt you {enemy_damage_roll} damage{end}')
             draw()
         else:
