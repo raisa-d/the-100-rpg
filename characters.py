@@ -42,22 +42,48 @@ class Player(Character):
         self.exhaustion_level = 0 # variable to track exhaustion level
         self.is_dodging = False # handles dodging state for Battle
     
-    def toggle_dodge(self): 
-        self.is_dodging = not self.is_dodging  # Toggle dodging state
+    # function to handle losing health in battle (called in Battle class)
+    def lose_health(self, num_hp_lost):
+        self.HP -= num_hp_lost
+        return self.HP
     
-    def apply_exhaustion_penalty(self): # method to handle exhaustion penalties
-        if self.exhaustion_level == 1: # lvl 1 exhaustion: disadvantage on ability checks
+    # function to handle gaining health in battle (called in Battle class)
+    def gain_health(self, num_hp_gained):
+        self.HP += num_hp_gained
+        return self.HP
+    
+    # function to handle gaining xp
+    def gain_xp(self, xp_gained):
+        self.xp += xp_gained
+        return self.xp
+    
+    # function to handle gaining gp
+    def gain_gp(self, gp_gained):
+        self.gp += gp_gained
+        return self.gp
+    
+    # function to toggle dodging state in Battle
+    def toggle_dodge(self): 
+        self.is_dodging = not self.is_dodging
+    
+    # method to handle exhaustion penalties
+    def apply_exhaustion_penalty(self):
+        # lvl 1 exhaustion: disadvantage on ability checks
+        if self.exhaustion_level == 1:
             print(f"\nYou are mildly exhausted. You must rest, eat, or\ndrink water to regain your energy. While you are exhausted,\nyou have incurred a{red} disadvantage on ability checks.{end}")
         
-        elif self.exhaustion_level == 2: # lvl 2 exhaustion: disadvantage on attack rolls and saving throws
+        # lvl 2 exhaustion: disadvantage on attack rolls and saving throws
+        elif self.exhaustion_level == 2:
             print(f"\n{bold}You are very exhausted. You must rest, eat, or\ndrink water to regain your energy. While you are very exhausted,\nyou will have a{red} disadvantage on attack rolls and saving throws.{end}")
         
-        elif self.exhaustion_level == 3: # lvl 3 exhaustion: HP max halved
+        # lvl 3 exhaustion: HP max halved
+        elif self.exhaustion_level == 3:
             self.maxHP = self.maxHP/2
             print("\nYou are very exhausted. Until you rest, eat, or drink,\nyour hit point maximum will be halved.")
             print(f"{self.name} currently has {self.HP}/{self.maxHP} HP 🩸")
     
-    def rest(self, short_or_long): # method to handle taking a short or long rest
+    # method to handle taking a short or long rest
+    def rest(self, short_or_long):
         if self.exhaustion_level > 0:
             if short_or_long == "short": # if choose a short rest
                 print("You take a short rest and recover.")
@@ -164,6 +190,16 @@ class Enemy(Character):
         super().__init__(name, HP, maxHP, AC, str_mod, dex_mod, equipped_weapon)
         self.drop_item = drop_item
         self.drop_GP = drop_GP
+    
+    # function to handle enemy losing HP
+    def lose_hp(self, hp_lost):
+        self.HP -= hp_lost
+        return self.HP
+
+    # function to fill up enemy's HP (when need to respawn)
+    def fill_hp(self):
+        self.HP = self.maxHP
+        return self.hp
 
 class NPC(Character):
     def __init__(self, name, HP, maxHP, AC, str_mod, dex_mod, drop_item, drop_GP, equipped_weapon = None):
