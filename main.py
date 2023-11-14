@@ -4,7 +4,7 @@ import random as r, time as t
 from crime import crimes
 from util import clear, enter, draw, red, underline, bold, end, white, yellow, green, cyan, gold, blue, copper, purple, orange, gray
 from cutscenes import intro, Nyx_Jules_dialogue
-from events import go_to_Earth, character_qualities, game_plan
+from events import go_to_Earth, game_plan
 from items import rapier, dagger, multipurpose_knife, throwing_knives, shiv, wrench
 from items import wristband, the_fleim, rations, small_waterskin, weapons_for_sale, tek_for_sale, potions_all
 from characters import print_inventory, Player, azgeda, save_game, dante
@@ -15,14 +15,14 @@ run = True # game is running
 play = False # playing game
 
 # booleans for locations
-in_BaseCamp = False
-in_MtWeather = False
-in_Polis = False
-in_TrikruWoods = False
-in_Deadzone = False
-in_ShallowValley = False
-in_Tondc = False
-in_Marketplace = False
+in_base_camp = False
+in_mt_weather = False
+in_polis = False
+in_trikru_woods = False
+in_deadzone = False
+in_shallow_valley = False
+in_tondc = False
+in_marketplace = False
 
 def choose_crime(): # choose crime/create player instance
     while True:
@@ -60,6 +60,7 @@ def choose_crime(): # choose crime/create player instance
                     
                     if select in ['y', 'yes']: # yes
                         char_name = input("\nWhat is your character's name?\n> ").strip().title()
+                        enter()
                         while char_name == "": # if they don't write a name, make them
                             char_name = input('Please enter a name\n\n> ').strip().title()
                         
@@ -69,8 +70,8 @@ def choose_crime(): # choose crime/create player instance
                             player.add_to_inv(wristband, 1)
                             player.add_to_inv(rations, 2)
                             player.add_to_inv(small_waterskin, 1)
-                            character_qualities.append("others mistrust you")
-                            return character_qualities
+                            #character_qualities.append("others mistrust you")
+                            #return character_qualities
                         
                         elif crime_index == 1: # rebellion leader
                             player = Player(char_name, 12, 12, 10, 16, 3, 14, 2, 15, 2, 9, -1, 11, 0, 13, 1, 2, 0, 12, 1, throwing_knives, wristband, {})
@@ -99,8 +100,8 @@ def choose_crime(): # choose crime/create player instance
                             player.add_to_inv(wristband, 1)
                             player.add_to_inv(rations, 2)
                             player.add_to_inv(small_waterskin, 1)
-                            character_qualities.append("others mistrust you")
-                            return character_qualities
+                            #character_qualities.append("others mistrust you")
+                            #return character_qualities
 
                         return player
 
@@ -222,8 +223,8 @@ def go_to_MtWeather(): ###
 def go_to_TrikruWoods(): ###
     pass
 def go_to_Market(user): 
-    in_Marketplace = True
-    while in_Marketplace:
+    in_marketplace = True
+    while in_marketplace:
         clear()
         print(f"The market stalls are adorned with colorful fabrics and\ngoods from each clan.\nThey offer you their wares as you pass by each stall.\n\n{bold}What kind of goods are you looking for?\n{end}")
         print(f"| {bold}{copper}Shuda {white}(Weapons) | {bold}{purple}Potions{white} | {bold}{blue}Tek{white} (Tek) | {bold}{gray}Leave |{end}")
@@ -383,7 +384,7 @@ def go_to_Market(user):
                 
         elif shop in ['l', 'leave', 'x', 'e', 'exit']:
             save_game(user, 'load.json') # save when you leave marketplace so saves any purchases made
-            in_Marketplace = False
+            in_marketplace = False
         else:
             print(f"{bold}{red}Invalid{white} command.\n\n{green}Valid{white} commands:\n{end}['s', 'shuda', 'w', 'weapons'\n'p', 'potions'\n't', 'tek', 'Tek', 'Teknology'\n'l', 'leave', 'x', 'e', 'exit'")
             enter()
@@ -409,9 +410,7 @@ def main():
                 intro() # calling introduction scene
                 player = choose_crime() # choose crime and return player object based on their choice
                 
-                if player is not None: 
-                    print(f"\n{bold}>> {player.name} created <<{end}") # successfully created player
-                    enter()
+                if player is not None: # if player is not none, we created player successfully
                     mainMenu = False # leave mainMenu loop
                     play = True # switch to play loop
                 else:
