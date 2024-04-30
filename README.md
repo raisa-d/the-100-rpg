@@ -8,6 +8,8 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Features](#features)
+- [Optimizations](#optimizations)
+- [Lessons Learned](#lessons-learned)
 - [How to Play](#how-to-play)
 - [Bugs](#bugs)
 - [Inspiration](#inspiration)
@@ -41,6 +43,16 @@ To get started, follow these steps:
 - Save and load game progress to continue your journey.
 - Engaging turn-based combat system that tests your skills.
 
+## Optimizations
+1) Cleaner code -- I am in the process of basically redoing what I have so far in a cleaner way that adheres better to best practice when using Object-Oriented Programming principles. That repository is [here](https://github.com/raisa-d/RPGClean). This project is the first big coding project I ever started, so it has been a lot of trial and error and I end up coming back to it after my skills have levelled up and wanting to completely change the back end!
+2) Using Flask or Django to bring this game online so it is more widely accessible.
+3) I have considered redoing the whole thing in JavaScript and getting it online that way and designing a front end, since the game currently exists on the command line.
+
+## Lessons Learned
+Since this is the first big coding project I ever started, I have learned a LOT building this role-player game. 
+One of the biggest things I learned to make this game was Object-Oriented Programming. At first, when I was figuring out how I would create the player, characters, and objects/items, I tried to use dictionaries and arrays to store that data. The more research I did and other RPGs I looked at, the more I recognized others were using this magical OOP. I figured out how it worked and started using it immediately and boy did it save me soooo many lines of code.
+In building this game, I have had countless bugs come up and features not work right, which really helped me think like an engineer by having to constantly think of multiple solutions to problems and try them out until one inevitably worked.
+
 ## How to Play
 
 1. Launch the game.
@@ -52,6 +64,7 @@ To get started, follow these steps:
 ## Bugs
 
 1. In the minigame to fix the dropship propulsion system, sometimes it will still ask user for input after they already solved the code completely. In this case, it requires user to click enter before it will say it is correct.
+2. In the trial fight with Dante, the game may crash if you win the battle.
 
 The game developer is working to resolve these issues.
 
