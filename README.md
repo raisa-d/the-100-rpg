@@ -1,6 +1,7 @@
 # The 100 Role Player Game
+<img src="/The100RPG.gif" alt="gif playing through parts of the 100 RPG">
 
-**The 100 Role Player Game** is a text-based role-playing game set in the world of "The 100," inspired by the TV show. In this game, you can create characters, embark on adventures, explore the post-apocalyptic world, and engage in battles. **I am currently cleaning this code in another repository. If you want to see the current progress on the more organized version of what I have so far, click [here](https://github.com/raisa-d/RPGClean).
+**The 100 RPG** is a text-based role-playing game set in the world of "The 100," inspired by the TV show. In this game, you can create characters, embark on adventures, explore the post-apocalyptic world, and engage in battles. **I am currently cleaning this code in another repository. If you want to see the current progress on the more organized version of what I have so far, click [here](https://github.com/raisa-d/RPGClean).
 
 ## Table of Contents
 - [About](#the-100-role-player-game)
